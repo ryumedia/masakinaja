@@ -1384,8 +1384,7 @@
                                     ${orderItems.length > 0 ? orderItems.map(item => `
                                         <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
                                             <div class="flex-1">
-                                                <p class="font-medium text-gray-900">${item.product_name || 'Produk'}</p>
-                                                <p class="text-sm text-gray-500">${getVendorName(item.category || '')} • Qty: ${item.quantity || 1}</p>
+                                                <p class="font-medium text-gray-900">${item.product_name || 'Produk'} <span class="text-sm text-gray-600 font-normal">x ${item.quantity || 1}</span></p>
                                             </div>
                                             <p class="font-medium text-gray-900">Rp ${formatPrice((item.price || 0) * (item.quantity || 1))}</p>
                                         </div>
@@ -4166,10 +4165,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
