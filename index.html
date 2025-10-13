@@ -45,9 +45,6 @@
                     <button onclick="showSection('shopping')" id="shoppingNav" class="nav-btn text-blue-600 border-b-2 border-blue-600 pb-2 font-medium">
                         <i class="fas fa-shopping-bag mr-2"></i>Belanja
                     </button>
-                    <button onclick="showSection('orders')" id="ordersNav" class="nav-btn text-gray-600 hover:text-gray-900 pb-2 hidden">
-                        <i class="fas fa-receipt mr-2"></i>Pesanan Saya
-                    </button>
                     <button onclick="showSection('admin')" id="adminNav" class="nav-btn text-gray-600 hover:text-gray-900 pb-2 hidden">
                         <i class="fas fa-cog mr-2"></i>Admin
                     </button>
@@ -67,13 +64,16 @@
                             </button>
                         </div>
                         <div id="userSection" class="hidden flex items-center space-x-4">
-                            <button onclick="showSection('cart')" class="relative p-2 text-gray-600 hover:text-gray-900">
+                            <button onclick="showSection('cart')" class="relative p-2 text-gray-600 hover:text-gray-900" title="Keranjang Belanja">
                                 <i class="fas fa-shopping-cart text-xl"></i>
                                 <span id="cartBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
                             </button>
+                            <button onclick="showSection('orders')" class="p-2 text-gray-600 hover:text-gray-900" title="Riwayat Pesanan">
+                                <i class="fas fa-receipt text-xl"></i>
+                            </button>
                             <div class="flex items-center space-x-2">
                                 <span id="userName" class="text-gray-700 font-medium"></span>
-                                <button onclick="logout()" class="text-gray-600 hover:text-red-600 transition-colors">
+                                <button onclick="logout()" class="text-gray-600 hover:text-red-600 transition-colors" title="Logout">
                                     <i class="fas fa-sign-out-alt"></i>
                                 </button>
                             </div>
@@ -669,10 +669,11 @@
         let supabaseClient = null;
 
         // Initialize app
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() { // Menjadi async
             // Langsung inisialisasi Supabase dengan kredensial yang sudah ada di atas
             if (SUPABASE_URL !== "https://URL_PROYEK_ANDA.supabase.co" && SUPABASE_ANON_KEY !== "KUNCI_ANON_ANDA") {
                 initializeSupabase(SUPABASE_URL, SUPABASE_ANON_KEY);
+                await checkSession(); // Menunggu pengecekan sesi sebelum lanjut
             } else {
                 // Tampilkan pesan jika kredensial belum diisi
                 const grid = document.getElementById('productsGrid');
@@ -699,6 +700,54 @@
             document.getElementById('authForm').addEventListener('submit', handleAuth);
             document.getElementById('vendorForm').addEventListener('submit', handleAddVendor);
             document.getElementById('productForm').addEventListener('submit', handleAddProduct);
+        }
+
+        // Fungsi baru untuk memeriksa sesi saat halaman dimuat
+        async function checkSession() {
+            if (!supabaseClient) return;
+
+            try {
+                const { data: { session }, error } = await supabaseClient.auth.getSession();
+                if (error) throw error;
+
+                if (session) {
+                    console.log('Sesi aktif ditemukan saat memuat halaman:', session.user);
+
+                    // Ambil profil pengguna dari tabel 'users'
+                    const { data: profile, error: profileError } = await supabaseClient
+                        .from('users')
+                        .select('*')
+                        .eq('id', session.user.id)
+                        .single();
+
+                    if (profileError) {
+                        console.error('Gagal mengambil profil saat refresh:', profileError);
+                        // Fallback jika profil tidak ada
+                        currentUser = {
+                            id: session.user.id,
+                            email: session.user.email,
+                            name: session.user.user_metadata?.full_name || session.user.email.split('@')[0],
+                            role: 'customer',
+                            vendor_category: null
+                        };
+                    } else {
+                        currentUser = {
+                            id: profile.id,
+                            email: profile.email,
+                            name: profile.full_name || profile.name,
+                            role: profile.role,
+                            vendor_category: profile.vendor_category
+                        };
+                    }
+                    
+                    console.log('Pengguna dipulihkan dari sesi:', currentUser);
+                    updateUIForUser();
+                } else {
+                    console.log('Tidak ada sesi aktif saat memuat halaman.');
+                }
+            } catch(error) {
+                console.error("Gagal memeriksa sesi:", error);
+            }
         }
 
         function initializeSupabase(url, key) {
@@ -1140,8 +1189,6 @@
                 document.getElementById('adminNav').classList.remove('hidden');
             } else if (currentUser.role === 'vendor') {
                 document.getElementById('vendorNav').classList.remove('hidden');
-            } else if (currentUser.role === 'customer') {
-                document.getElementById('ordersNav').classList.remove('hidden');
             }
             
             updateCartBadge();
@@ -1156,7 +1203,6 @@
             document.getElementById('userSection').classList.add('hidden');
             document.getElementById('adminNav').classList.add('hidden');
             document.getElementById('vendorNav').classList.add('hidden');
-            document.getElementById('ordersNav').classList.add('hidden');
             
             showSection('shopping');
             updateCartBadge();
@@ -1202,7 +1248,7 @@
 
         // Load customer orders
         function loadCustomerOrders() {
-            if (!currentUser || currentUser.role !== 'customer') return;
+            if (!currentUser) return;
             
             console.log('Loading customer orders for:', currentUser);
             console.log('All orders:', orders);
@@ -3963,4 +4009,6 @@
     </script>
 </body>
 </html>
+
+
 
