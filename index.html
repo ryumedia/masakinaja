@@ -3845,7 +3845,7 @@
             });
         }
         
-        // Print Order Invoice
+        // Print Order Invoice (REVISED FOR MOBILE COMPATIBILITY)
         function printOrder(orderId) {
             const order = orders.find(o => o.id == orderId);
             if (!order) {
@@ -3856,8 +3856,7 @@
             const orderItems = order.items || [];
             const total = order.total || order.total_amount || 0;
 
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(`
+            const printContent = `
                 <html>
                 <head>
                     <title>Struk Pesanan #${order.id}</title>
@@ -3873,6 +3872,9 @@
                         .total-row td { border-top: 1px dashed #999; padding-top: 10px; font-weight: bold; }
                         .text-right { text-align: right; }
                         .footer { text-align: center; margin-top: 20px; font-size: 12px; border-top: 1px dashed #999; padding-top: 10px;}
+                        @media print {
+                            body { margin: 0; }
+                        }
                     </style>
                 </head>
                 <body>
@@ -3915,15 +3917,31 @@
                     </div>
                 </body>
                 </html>
-            `);
-
-            printWindow.document.close();
-            printWindow.focus(); 
+            `;
             
-            // Use a timeout to ensure the content is fully loaded before printing
+            // Create a hidden iframe
+            const oldIframe = document.getElementById('print-iframe');
+            if (oldIframe) {
+                oldIframe.remove();
+            }
+
+            const iframe = document.createElement('iframe');
+            iframe.id = 'print-iframe';
+            iframe.style.position = 'absolute';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = 'none';
+
+            document.body.appendChild(iframe);
+
+            // Write content to iframe and trigger print
+            iframe.contentDocument.write(printContent);
+            iframe.contentDocument.close();
+            
+            // Wait for iframe content to load before printing
             setTimeout(() => {
-                printWindow.print();
-                printWindow.close();
+                iframe.contentWindow.focus();
+                iframe.contentWindow.print();
             }, 250);
         }
 
