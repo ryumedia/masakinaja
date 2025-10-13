@@ -1730,7 +1730,7 @@
                             <th class="text-left py-4 px-6 font-medium text-gray-700">Items</th>
                             <th class="text-left py-4 px-6 font-medium text-gray-700">Total</th>
                             <th class="text-left py-4 px-6 font-medium text-gray-700">Status</th>
-                            <th class="text-left py-4 px-6 font-medium text-gray-700">Tanggal</th>
+                            <th class="text-left py-4 px-6 font-medium text-gray-700">Payment Method</th>
                             <th class="text-left py-4 px-6 font-medium text-gray-700">Aksi</th>
                         </tr>
                     </thead>
@@ -1776,12 +1776,7 @@
                                     </span>
                                 </td>
                                 <td class="py-4 px-6 text-gray-600">
-                                    ${new Date(order.created_at).toLocaleDateString('id-ID', {
-                                        weekday: 'short',
-                                        day: 'numeric',
-                                        month: 'short',
-                                        year: 'numeric'
-                                    })}
+                                    ${getOrderStatusText(order.status || 'pending')}
                                 </td>
                                 <td class="py-4 px-6">
                                     <div class="flex flex-col space-y-1">
@@ -3928,3 +3923,4 @@
     </script>
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98dba6f017717550',t:'MTc2MDMyNTExMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
+
