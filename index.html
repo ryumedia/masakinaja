@@ -34,26 +34,24 @@
     <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <div class="flex items-center space-x-4">
-                    <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-store text-white text-sm"></i>
-                    </div>
-                    <h1 class="text-xl font-bold text-gray-900">Masakin Aja</h1>
+                <!-- Left Section: Logo, Title, and Role Icons -->
+                <div class="flex items-center space-x-1 sm:space-x-2">
+                    <button onclick="showSection('shopping')" class="flex items-center space-x-4">
+                        <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-store text-white text-sm"></i>
+                        </div>
+                        <h1 class="text-xl font-bold text-gray-900">Masakin Aja</h1>
+                    </button>
+                    <!-- Admin & Vendor Icons -->
+                    <button onclick="showSection('admin')" id="adminNav" class="nav-btn text-gray-600 hover:text-blue-600 w-10 h-10 flex items-center justify-center rounded-full hidden transition-colors" title="Panel Admin">
+                        <i class="fas fa-cog text-xl"></i>
+                    </button>
+                    <button onclick="showSection('vendor')" id="vendorNav" class="nav-btn text-gray-600 hover:text-blue-600 w-10 h-10 flex items-center justify-center rounded-full hidden transition-colors" title="Panel Vendor">
+                        <i class="fas fa-store text-xl"></i>
+                    </button>
                 </div>
-                
-                <nav class="hidden md:flex space-x-8">
-                    <button onclick="showSection('shopping')" id="shoppingNav" class="nav-btn text-blue-600 border-b-2 border-blue-600 pb-2 font-medium">
-                        <i class="fas fa-shopping-bag mr-2"></i>Belanja
-                    </button>
-                    <button onclick="showSection('admin')" id="adminNav" class="nav-btn text-gray-600 hover:text-gray-900 pb-2 hidden">
-                        <i class="fas fa-cog mr-2"></i>Admin
-                    </button>
-                    <button onclick="showSection('vendor')" id="vendorNav" class="nav-btn text-gray-600 hover:text-gray-900 pb-2 hidden">
-                        <i class="fas fa-store mr-2"></i>Panel Vendor
-                    </button>
-                </nav>
 
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center space-x-4">
                     <div id="authSection">
                         <div id="loginSection">
                             <button onclick="showAuthModal('login')" class="text-gray-600 hover:text-gray-900 mr-4">
@@ -63,7 +61,7 @@
                                 <i class="fas fa-user-plus mr-2"></i>Daftar
                             </button>
                         </div>
-                        <div id="userSection" class="hidden flex items-center space-x-2 sm:space-x-4">
+                        <div id="userSection" class="hidden flex items-center space-x-4">
                             <button onclick="showSection('cart')" class="relative p-2 text-gray-600 hover:text-gray-900" title="Keranjang Belanja">
                                 <i class="fas fa-shopping-cart text-xl"></i>
                                 <span id="cartBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
@@ -71,7 +69,7 @@
                             <button onclick="showSection('orders')" class="p-2 text-gray-600 hover:text-gray-900" title="Riwayat Pesanan">
                                 <i class="fas fa-receipt text-xl"></i>
                             </button>
-                            <div class="hidden sm:flex items-center space-x-2">
+                            <div class="flex items-center space-x-2">
                                 <span id="userName" class="text-gray-700 font-medium"></span>
                                 <button onclick="logout()" class="text-gray-600 hover:text-red-600 transition-colors" title="Logout">
                                     <i class="fas fa-sign-out-alt"></i>
@@ -79,44 +77,10 @@
                             </div>
                         </div>
                     </div>
-                     <!-- Hamburger Button -->
-                    <button id="hamburger-btn" class="md:hidden p-2 text-gray-600 hover:text-gray-900">
-                        <i class="fas fa-bars text-xl"></i>
-                    </button>
                 </div>
             </div>
         </div>
     </header>
-
-    <!-- Mobile Menu -->
-    <div id="mobile-menu" class="fixed top-0 right-0 h-full w-64 bg-white shadow-lg z-50 transform translate-x-full transition-transform duration-300 ease-in-out md:hidden">
-        <div class="p-4 flex justify-between items-center border-b">
-            <h2 class="font-bold text-lg">Menu</h2>
-            <button id="close-menu-btn" class="p-2">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-        </div>
-        <nav class="flex flex-col space-y-2 p-4">
-             <button onclick="showSection('shopping'); closeMobileMenu();" class="mobile-nav-btn w-full text-left p-3 rounded-lg hover:bg-gray-100 font-medium text-gray-700">
-                <i class="fas fa-shopping-bag w-6 mr-2"></i>Belanja
-            </button>
-            <button onclick="showSection('admin'); closeMobileMenu();" id="mobileAdminNav" class="mobile-nav-btn w-full text-left p-3 rounded-lg hover:bg-gray-100 font-medium text-gray-700 hidden">
-                <i class="fas fa-cog w-6 mr-2"></i>Admin
-            </button>
-            <button onclick="showSection('vendor'); closeMobileMenu();" id="mobileVendorNav" class="mobile-nav-btn w-full text-left p-3 rounded-lg hover:bg-gray-100 font-medium text-gray-700 hidden">
-                <i class="fas fa-store w-6 mr-2"></i>Panel Vendor
-            </button>
-            <div class="sm:hidden border-t pt-4 mt-2" id="mobileUserSection">
-                 <div class="flex items-center space-x-2 p-3">
-                    <span id="mobileUserName" class="text-gray-700 font-medium flex-1"></span>
-                    <button onclick="logout()" class="text-gray-600 hover:text-red-600 transition-colors" title="Logout">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </button>
-                </div>
-            </div>
-        </nav>
-    </div>
-
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -133,7 +97,7 @@
             </div>
 
             <!-- Products Grid -->
-            <div id="productsGrid" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+            <div id="productsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 <!-- Products will be loaded here -->
             </div>
         </section>
@@ -1250,16 +1214,25 @@
             
             // Update navigation
             document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
-                btn.classList.add('text-gray-600', 'hover:text-gray-900');
+                btn.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600', 'bg-blue-50');
+                btn.classList.add('text-gray-600');
             });
             
             // Show selected section
             document.getElementById(section + 'Section').classList.remove('hidden');
             
+            // Highlight the active navigation icon/button
             if (document.getElementById(section + 'Nav')) {
-                document.getElementById(section + 'Nav').classList.remove('text-gray-600', 'hover:text-gray-900');
-                document.getElementById(section + 'Nav').classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+                const navButton = document.getElementById(section + 'Nav');
+                navButton.classList.remove('text-gray-600');
+                
+                // For icon buttons (admin/vendor), apply a background color for active state
+                if (section === 'admin' || section === 'vendor') {
+                    navButton.classList.add('text-blue-600', 'bg-blue-50');
+                } else {
+                    // Fallback for any future text-based nav buttons
+                    navButton.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+                }
             }
             
             // Load section-specific data
@@ -4043,7 +4016,3 @@
     </script>
 </body>
 </html>
-
-
-
-
