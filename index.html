@@ -10,6 +10,7 @@
     <style>
         body {
             box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
         }
         .vendor-card {
             transition: all 0.3s ease;
@@ -56,9 +57,6 @@
                 </nav>
 
                 <div class="flex items-center space-x-4">
-                    <button onclick="showSupabaseModal()" class="p-2 text-gray-600 hover:text-gray-900 transition-colors" title="Pengaturan Supabase">
-                        <i class="fas fa-database text-xl"></i>
-                    </button>
                     <div id="authSection">
                         <div id="loginSection">
                             <button onclick="showAuthModal('login')" class="text-gray-600 hover:text-gray-900 mr-4">
@@ -90,13 +88,13 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Shopping Section -->
         <section id="shoppingSection" class="section-content">
-            <!-- Vendor Filter -->
+            <!-- Type Filter -->
             <div class="mb-8">
-                <div id="vendorFilterButtons" class="flex flex-wrap gap-3">
-                    <button onclick="filterByVendor('')" class="vendor-filter-btn bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-700 transition-colors">
-                        Semua Vendor
+                <div id="typeFilterButtons" class="flex flex-wrap gap-3">
+                    <button onclick="filterByType(event, '')" class="type-filter-btn bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-700 transition-colors">
+                        Semua Tipe
                     </button>
-                    <!-- Vendor filter buttons will be loaded dynamically from database -->
+                    <!-- Type filter buttons will be loaded dynamically -->
                 </div>
             </div>
 
@@ -237,6 +235,11 @@
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         </div>
                         <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tipe (Opsional)</label>
+                            <input type="text" id="productType" placeholder="Contoh: Makanan, Minuman"
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
                             <input type="text" id="productCategory" readonly 
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600">
@@ -564,7 +567,6 @@
                                 <option value="">Semua Status</option>
                                 <option value="pending">Pending</option>
                                 <option value="processing">Processing</option>
-                                <option value="shipped">Shipped</option>
                                 <option value="delivered">Delivered</option>
                                 <option value="cancelled">Cancelled</option>
                             </select>
@@ -605,55 +607,6 @@
             </div>
         </section>
     </main>
-
-    <!-- Supabase Modal -->
-    <div id="supabaseModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md">
-            <div class="p-6">
-                <div class="text-center mb-6">
-                    <div class="mx-auto w-16 h-16 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center mb-4">
-                        <i class="fas fa-database text-white text-2xl"></i>
-                    </div>
-                    <h2 class="text-2xl font-bold text-gray-900">Pengaturan Supabase</h2>
-                    <p class="text-gray-600 text-sm mt-2">Masukkan kredensial Supabase Anda</p>
-                </div>
-
-                <form id="supabaseForm" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Supabase URL</label>
-                        <input type="url" id="supabaseUrl" placeholder="https://your-project.supabase.co"
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Supabase Anon Key</label>
-                        <textarea id="supabaseKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all h-24 resize-none"></textarea>
-                    </div>
-                    <div class="flex space-x-3">
-                        <button type="submit" 
-                                class="flex-1 bg-gradient-to-r from-green-500 to-blue-600 text-white py-3 rounded-lg font-medium hover:from-green-600 hover:to-blue-700 transition-all">
-                            <i class="fas fa-save mr-2"></i>Simpan
-                        </button>
-                        <button type="button" onclick="testSupabaseConnection()" 
-                                class="flex-1 bg-gray-600 text-white py-3 rounded-lg font-medium hover:bg-gray-700 transition-all">
-                            <i class="fas fa-plug mr-2"></i>Test
-                        </button>
-                    </div>
-                </form>
-
-                <div class="mt-4 p-3 bg-blue-50 rounded-lg">
-                    <p class="text-sm text-blue-800">
-                        <i class="fas fa-info-circle mr-2"></i>
-                        Dapatkan kredensial dari dashboard Supabase Anda di bagian Settings → API
-                    </p>
-                </div>
-
-                <button onclick="hideSupabaseModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-        </div>
-    </div>
 
     <!-- Auth Modal -->
     <div id="authModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
@@ -703,85 +656,56 @@
     </div>
 
     <script>
+        // KONFIGURASI SUPABASE (GANTI DENGAN KREDENSIAL ANDA)
+        const SUPABASE_URL = "https://drfdjznyikcsercajaek.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyZmRqem55aWtjc2VyY2FqYWVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMTkyNTMsImV4cCI6MjA3NTU5NTI1M30.D2tbT9xTSblfG2Cvy4FEpZM5iqOr7FfMaIt6A-8Msuk";
+
         // Global variables
         let currentUser = null;
         let products = [];
         let orders = [];
         let cart = [];
-        let currentVendorFilter = '';
+        let currentTypeFilter = '';
         let supabaseClient = null;
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
-            loadSupabaseConfig();
-            renderProducts();
+            // Langsung inisialisasi Supabase dengan kredensial yang sudah ada di atas
+            if (SUPABASE_URL !== "https://URL_PROYEK_ANDA.supabase.co" && SUPABASE_ANON_KEY !== "KUNCI_ANON_ANDA") {
+                initializeSupabase(SUPABASE_URL, SUPABASE_ANON_KEY);
+            } else {
+                // Tampilkan pesan jika kredensial belum diisi
+                const grid = document.getElementById('productsGrid');
+                if(grid){
+                    grid.innerHTML = `
+                        <div class="col-span-full text-center py-16">
+                             <div class="bg-yellow-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <i class="fas fa-exclamation-triangle text-yellow-500 text-4xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-4">Konfigurasi Diperlukan</h3>
+                            <p class="text-gray-600 max-w-md mx-auto">
+                                Harap masukkan Supabase URL dan Anon Key Anda langsung di dalam kode file HTML (di dalam tag &lt;script&gt;).
+                            </p>
+                        </div>
+                    `;
+                }
+            }
             setupEventListeners();
         });
+
 
         // Setup event listeners
         function setupEventListeners() {
             document.getElementById('authForm').addEventListener('submit', handleAuth);
-            document.getElementById('supabaseForm').addEventListener('submit', handleSupabaseConfig);
             document.getElementById('vendorForm').addEventListener('submit', handleAddVendor);
             document.getElementById('productForm').addEventListener('submit', handleAddProduct);
-        }
-
-        // Supabase functions
-        function showSupabaseModal() {
-            const modal = document.getElementById('supabaseModal');
-            
-            // Load existing config
-            const savedUrl = localStorage.getItem('supabase_url');
-            const savedKey = localStorage.getItem('supabase_key');
-            
-            if (savedUrl) document.getElementById('supabaseUrl').value = savedUrl;
-            if (savedKey) document.getElementById('supabaseKey').value = savedKey;
-            
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function hideSupabaseModal() {
-            document.getElementById('supabaseModal').classList.add('hidden');
-            document.getElementById('supabaseModal').classList.remove('flex');
-        }
-
-        function handleSupabaseConfig(e) {
-            e.preventDefault();
-            
-            const url = document.getElementById('supabaseUrl').value.trim();
-            const key = document.getElementById('supabaseKey').value.trim();
-            
-            if (!url || !key) {
-                showNotification('URL dan Key harus diisi', 'error');
-                return;
-            }
-            
-            // Save to localStorage
-            localStorage.setItem('supabase_url', url);
-            localStorage.setItem('supabase_key', key);
-            
-            // Initialize Supabase client
-            initializeSupabase(url, key);
-            
-            hideSupabaseModal();
-            showNotification('Konfigurasi Supabase berhasil disimpan!', 'success');
-        }
-
-        function loadSupabaseConfig() {
-            const savedUrl = localStorage.getItem('supabase_url');
-            const savedKey = localStorage.getItem('supabase_key');
-            
-            if (savedUrl && savedKey) {
-                initializeSupabase(savedUrl, savedKey);
-            }
         }
 
         function initializeSupabase(url, key) {
             try {
                 // Initialize Supabase client
                 supabaseClient = supabase.createClient(url, key);
-                console.log('Supabase initialized with:', { url, key: key.substring(0, 20) + '...' });
+                console.log('Supabase initialized.');
                 
                 // Load data from database
                 loadDataFromDatabase();
@@ -792,48 +716,23 @@
             }
         }
 
-        async function testSupabaseConnection() {
-            const url = document.getElementById('supabaseUrl').value.trim();
-            const key = document.getElementById('supabaseKey').value.trim();
-            
-            if (!url || !key) {
-                showNotification('URL dan Key harus diisi', 'error');
-                return;
-            }
-            
-            try {
-                // Test connection with Supabase client
-                const testClient = supabase.createClient(url, key);
-                const { data, error } = await testClient.from('products').select('count', { count: 'exact', head: true });
-                
-                if (error) {
-                    showNotification('Koneksi gagal: ' + error.message, 'error');
-                } else {
-                    showNotification('Koneksi Supabase berhasil!', 'success');
-                }
-            } catch (error) {
-                showNotification('Error: ' + error.message, 'error');
-            }
-        }
-
         // Load all data from database
         async function loadDataFromDatabase() {
             if (!supabaseClient) return;
             
             try {
-                // Load products
+                // Load products first as other functions might depend on it
                 await loadProducts();
                 
-                // Load orders
+                // Load other data
                 await loadOrders();
-                
-                // Load users (if needed)
                 await loadUsers();
                 
-                // Load vendor filters
-                await loadVendorFilters();
+                // Generate filters from loaded data
+                loadTypeFilters(); // For shopping page
+                await loadAdminVendorFilters(); // For admin panels
                 
-                // Refresh UI
+                // Initial render
                 renderProducts();
                 
                 console.log('Data loaded:', { products: products.length, orders: orders.length });
@@ -900,8 +799,25 @@
             }
         }
 
-        // Load vendor filters from active vendors in database
-        async function loadVendorFilters() {
+        // Load type filters from products for the shopping page
+        function loadTypeFilters() {
+            try {
+                // Get unique, non-null, non-empty types from the global products array
+                const uniqueTypes = [...new Set(products.map(p => p.type).filter(Boolean))];
+                
+                console.log('Active product types:', uniqueTypes);
+                
+                // Update shopping filter buttons
+                updateShoppingTypeFilters(uniqueTypes);
+                
+            } catch (error) {
+                console.error('Error loading type filters:', error);
+                updateShoppingTypeFilters([]); // Show no filters on error
+            }
+        }
+
+        // Load vendor filters from active vendors in database for admin panels
+        async function loadAdminVendorFilters() {
             if (!supabaseClient) return;
             
             try {
@@ -917,39 +833,36 @@
                 // Get unique categories
                 const uniqueCategories = [...new Set(vendors.map(v => v.vendor_category).filter(Boolean))];
                 
-                console.log('Active vendor categories:', uniqueCategories);
-                
-                // Update shopping filter buttons
-                updateShoppingVendorFilters(uniqueCategories);
+                console.log('Active vendor categories for Admin:', uniqueCategories);
                 
                 // Update admin filter dropdown
                 updateAdminVendorFilters(uniqueCategories);
                 
             } catch (error) {
-                console.error('Error loading vendor filters:', error);
+                console.error('Error loading admin vendor filters:', error);
                 // Fallback to default categories if database fails
                 const defaultCategories = ['pin-kopi', 'satset-grill', 'ani-ksf'];
-                updateShoppingVendorFilters(defaultCategories);
                 updateAdminVendorFilters(defaultCategories);
             }
         }
 
-        // Update shopping vendor filter buttons
-        function updateShoppingVendorFilters(categories) {
-            const container = document.getElementById('vendorFilterButtons');
+        // Update shopping type filter buttons
+        function updateShoppingTypeFilters(types) {
+            const container = document.getElementById('typeFilterButtons');
             if (!container) return;
             
-            // Keep the "Semua Vendor" button and add dynamic vendor buttons
+            // Keep the "Semua Tipe" button and add dynamic type buttons
             let buttonsHTML = `
-                <button onclick="filterByVendor('')" class="vendor-filter-btn bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-700 transition-colors">
-                    Semua Vendor
+                <button onclick="filterByType(event, '')" class="type-filter-btn bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-700 transition-colors">
+                    Semua Tipe
                 </button>
             `;
             
-            categories.forEach(category => {
+            types.forEach(type => {
+                const displayType = type.charAt(0).toUpperCase() + type.slice(1);
                 buttonsHTML += `
-                    <button onclick="filterByVendor('${category}')" class="vendor-filter-btn bg-white text-gray-700 px-4 py-2 rounded-full text-sm font-medium border border-gray-300 hover:bg-gray-50 transition-colors">
-                        ${getVendorName(category)}
+                    <button onclick="filterByType(event, '${type}')" class="type-filter-btn bg-white text-gray-700 px-4 py-2 rounded-full text-sm font-medium border border-gray-300 hover:bg-gray-50 transition-colors">
+                        ${displayType}
                     </button>
                 `;
             });
@@ -1508,10 +1421,6 @@
                                         class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded hover:bg-blue-200 transition-colors">
                                     <i class="fas fa-play mr-1"></i>Proses
                                 </button>
-                                <button onclick="updateOrderStatus('${order.id}', 'shipped')" 
-                                        class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded hover:bg-purple-200 transition-colors">
-                                    <i class="fas fa-truck mr-1"></i>Kirim
-                                </button>
                                 <button onclick="updateOrderStatus('${order.id}', 'delivered')" 
                                         class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded hover:bg-green-200 transition-colors">
                                     <i class="fas fa-check mr-1"></i>Selesai
@@ -1775,7 +1684,7 @@
                                         ${getOrderStatusText(order.status || 'pending')}
                                     </span>
                                 </td>
-                                <td class="py-4 px-6 text-gray-600">
+                                <td class="py-4 px-6 text-sm text-gray-600">
                                     ${getPaymentMethodText(order.payment_method || 'cash')}
                                 </td>
                                 <td class="py-4 px-6">
@@ -1784,10 +1693,6 @@
                                                 class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded hover:bg-blue-200 transition-colors">
                                             <i class="fas fa-play mr-1"></i>Proses
                                         </button>
-                                        <button onclick="updateOrderStatusAdmin('${order.id}', 'shipped')" 
-                                                class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded hover:bg-purple-200 transition-colors">
-                                            <i class="fas fa-truck mr-1"></i>Kirim
-                                        </button>
                                         <button onclick="updateOrderStatusAdmin('${order.id}', 'delivered')" 
                                                 class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded hover:bg-green-200 transition-colors">
                                             <i class="fas fa-check mr-1"></i>Selesai
@@ -1795,6 +1700,10 @@
                                         <button onclick="updateOrderStatusAdmin('${order.id}', 'cancelled')" 
                                                 class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded hover:bg-red-200 transition-colors">
                                             <i class="fas fa-times mr-1"></i>Batal
+                                        </button>
+                                        <button onclick="printOrder('${order.id}')"
+                                                class="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded hover:bg-gray-200 transition-colors mt-1">
+                                            <i class="fas fa-print mr-1"></i>Cetak
                                         </button>
                                     </div>
                                 </td>
@@ -1813,7 +1722,6 @@
             switch (status) {
                 case 'pending': return 'bg-yellow-100 text-yellow-800';
                 case 'processing': return 'bg-blue-100 text-blue-800';
-                case 'shipped': return 'bg-purple-100 text-purple-800';
                 case 'delivered': return 'bg-green-100 text-green-800';
                 case 'cancelled': return 'bg-red-100 text-red-800';
                 default: return 'bg-gray-100 text-gray-800';
@@ -1825,7 +1733,6 @@
             switch (status) {
                 case 'pending': return 'Pending';
                 case 'processing': return 'Processing';
-                case 'shipped': return 'Shipped';
                 case 'delivered': return 'Delivered';
                 case 'cancelled': return 'Cancelled';
                 default: return status;
@@ -1871,18 +1778,20 @@
             return new Intl.NumberFormat('id-ID').format(price);
         }
 
-        // Filter by vendor
-        function filterByVendor(vendor) {
-            currentVendorFilter = vendor;
+        // Filter by type
+        function filterByType(event, type) {
+            currentTypeFilter = type;
             
             // Update filter buttons
-            document.querySelectorAll('.vendor-filter-btn').forEach(btn => {
+            document.querySelectorAll('.type-filter-btn').forEach(btn => {
                 btn.classList.remove('bg-blue-600', 'text-white');
                 btn.classList.add('bg-white', 'text-gray-700', 'border', 'border-gray-300');
             });
             
-            event.target.classList.remove('bg-white', 'text-gray-700', 'border', 'border-gray-300');
-            event.target.classList.add('bg-blue-600', 'text-white');
+            if(event && event.target) {
+                event.target.classList.remove('bg-white', 'text-gray-700', 'border', 'border-gray-300');
+                event.target.classList.add('bg-blue-600', 'text-white');
+            }
             
             renderProducts();
         }
@@ -1891,29 +1800,22 @@
         function renderProducts() {
             const grid = document.getElementById('productsGrid');
             
-            // Check if Supabase is not configured
+            // Check if Supabase is not configured yet in the hardcoded constants
             if (!supabaseClient) {
-                grid.innerHTML = `
-                    <div class="col-span-full text-center py-16">
-                        <div class="bg-gradient-to-r from-green-500 to-blue-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <i class="fas fa-database text-white text-3xl"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold text-gray-900 mb-4">Setup Database Supabase</h3>
-                        <p class="text-gray-600 mb-6 max-w-md mx-auto">
-                            Klik icon database di header untuk mengatur koneksi Supabase dan mulai mengelola produk Anda.
-                        </p>
-                        <button onclick="showSupabaseModal()" class="bg-gradient-to-r from-green-500 to-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:from-green-600 hover:to-blue-700 transition-all transform hover:scale-105">
-                            <i class="fas fa-cog mr-2"></i>Setup Sekarang
-                        </button>
-                    </div>
-                `;
+                 if (SUPABASE_URL === "https://URL_PROYEK_ANDA.supabase.co" || SUPABASE_ANON_KEY === "KUNCI_ANON_ANDA") {
+                    // This will be handled by the DOMContentLoaded listener's else block
+                    return;
+                }
+                // If credentials are set but initialization hasn't happened yet, show a loading state or just wait.
+                // The current structure calls renderProducts before initializeSupabase, so we prevent it from showing "No products" prematurely.
+                grid.innerHTML = `<div class="col-span-full text-center py-16"><p class="text-gray-500">Memuat produk...</p></div>`
                 return;
             }
             
-            // Filter products by vendor if needed
+            // Filter products by type if needed
             let filteredProducts = products;
-            if (currentVendorFilter) {
-                filteredProducts = products.filter(p => p.category === currentVendorFilter);
+            if (currentTypeFilter) {
+                filteredProducts = products.filter(p => (p.type || '').toLowerCase() === currentTypeFilter.toLowerCase());
             }
             
             // Check if no products available
@@ -1925,10 +1827,10 @@
                         </div>
                         <h3 class="text-2xl font-bold text-gray-900 mb-4">Belum Ada Produk</h3>
                         <p class="text-gray-600 mb-6 max-w-md mx-auto">
-                            ${currentVendorFilter ? 'Tidak ada produk untuk vendor ini.' : 'Database terhubung tapi belum ada produk. Tambahkan produk melalui panel admin atau vendor.'}
+                            ${currentTypeFilter ? `Tidak ada produk untuk tipe "${currentTypeFilter}".` : 'Database terhubung tapi belum ada produk. Tambahkan produk melalui panel vendor.'}
                         </p>
-                        ${!currentVendorFilter ? `
-                            <button onclick="filterByVendor('')" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                        ${!currentTypeFilter ? `
+                            <button onclick="loadDataFromDatabase()" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
                                 <i class="fas fa-refresh mr-2"></i>Refresh
                             </button>
                         ` : ''}
@@ -1948,8 +1850,8 @@
                     </div>
                     <div class="p-6">
                         <div class="flex items-center justify-between mb-2">
-                            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
-                                ${getVendorName(product.category)}
+                            <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                                ${product.type ? (product.type.charAt(0).toUpperCase() + product.type.slice(1)) : 'Umum'}
                             </span>
                             <span class="text-sm text-gray-500">Stok: ${product.stock || 0}</span>
                         </div>
@@ -2236,7 +2138,7 @@
                                     <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgCasssXDfDwY5JY1YgVuuHIoSk0Xl0PPy5xdfl3cFsRnYC0euhgylGONrXhl2L653RI3IKl5faxwfovcpXqi7hwSOOiytvZO7-rwtKvBOuB1BG0AIVEqatnKRPjJ5vbJHIkRM76OHj4FpKhSvG-XMAXVhnWRuQFk8m0GU0WDmE7g531Ge5MzyldTxjdIs/s375/Qris%20Masakin.jpg" 
                                          alt="QRIS Masakin Aja" 
                                          class="w-full h-full object-cover"
-                                         onerror="this.parentElement.innerHTML='<i class=\'fas fa-qrcode text-gray-400 text-4xl\'></i>'">
+                                         onerror="this.parentElement.innerHTML='<i class=\\'fas fa-qrcode text-gray-400 text-4xl\\'></i>'">
                                 </div>
                                 <p class="text-sm text-gray-600 mb-2">Scan QR Code dengan aplikasi pembayaran Anda</p>
                                 <p class="text-xs text-gray-500">Mendukung: GoPay, OVO, DANA, ShopeePay, dll</p>
@@ -2381,7 +2283,6 @@
                 
                 const statusMessages = {
                     'processing': 'Pesanan sedang diproses',
-                    'shipped': 'Pesanan telah dikirim',
                     'delivered': 'Pesanan telah selesai',
                     'cancelled': 'Pesanan dibatalkan'
                 };
@@ -2427,7 +2328,6 @@
                 
                 const statusMessages = {
                     'processing': 'Pesanan sedang diproses',
-                    'shipped': 'Pesanan telah dikirim',
                     'delivered': 'Pesanan telah selesai',
                     'cancelled': 'Pesanan dibatalkan'
                 };
@@ -2634,6 +2534,7 @@
                             <tr>
                                 <th class="text-left py-4 px-6 font-medium text-gray-700">Produk</th>
                                 <th class="text-left py-4 px-6 font-medium text-gray-700">Vendor</th>
+                                <th class="text-left py-4 px-6 font-medium text-gray-700">Tipe</th>
                                 <th class="text-left py-4 px-6 font-medium text-gray-700">Deskripsi</th>
                                 <th class="text-left py-4 px-6 font-medium text-gray-700">Harga</th>
                                 <th class="text-left py-4 px-6 font-medium text-gray-700">Stok</th>
@@ -2660,6 +2561,9 @@
                                         <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
                                             ${getVendorName(product.category)}
                                         </span>
+                                    </td>
+                                    <td class="py-4 px-6 text-sm text-gray-600">
+                                        ${product.type || '-'}
                                     </td>
                                     <td class="py-4 px-6">
                                         <p class="text-sm text-gray-900 max-w-xs truncate" title="${product.description || 'Tidak ada deskripsi'}">
@@ -3392,7 +3296,7 @@
                 loadVendorsTable();
                 
                 // Refresh vendor filters since categories might have changed
-                await loadVendorFilters();
+                await loadAdminVendorFilters();
                 
             } catch (error) {
                 console.error('Error updating vendor:', error);
@@ -3402,38 +3306,37 @@
 
         // Delete vendor
         async function deleteVendor(vendorId, vendorName) {
-            if (!confirm(`Apakah Anda yakin ingin menghapus vendor "${vendorName}"?\n\nVendor akan diubah kembali menjadi customer biasa.`)) {
-                return;
-            }
-            
-            if (!supabaseClient) {
-                showNotification('Koneksi database tidak tersedia', 'error');
-                return;
-            }
-            
-            try {
-                // Update user role back to customer
-                const { error } = await supabaseClient
-                    .from('users')
-                    .update({ 
-                        role: 'customer',
-                        vendor_category: null,
-                        updated_at: new Date().toISOString()
-                    })
-                    .eq('id', vendorId);
+            // Using custom modal instead of confirm()
+            showConfirmationModal(`Apakah Anda yakin ingin menghapus vendor "${vendorName}"?<br><br>Vendor akan diubah kembali menjadi customer biasa.`, async () => {
+                if (!supabaseClient) {
+                    showNotification('Koneksi database tidak tersedia', 'error');
+                    return;
+                }
                 
-                if (error) throw error;
-                
-                showNotification(`Vendor "${vendorName}" berhasil dihapus dan diubah kembali menjadi customer`, 'success');
-                loadVendorsTable();
-                
-                // Refresh vendor filters since vendor categories might have changed
-                await loadVendorFilters();
-                
-            } catch (error) {
-                console.error('Error deleting vendor:', error);
-                showNotification('Gagal menghapus vendor: ' + error.message, 'error');
-            }
+                try {
+                    // Update user role back to customer
+                    const { error } = await supabaseClient
+                        .from('users')
+                        .update({ 
+                            role: 'customer',
+                            vendor_category: null,
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('id', vendorId);
+                    
+                    if (error) throw error;
+                    
+                    showNotification(`Vendor "${vendorName}" berhasil dihapus dan diubah kembali menjadi customer`, 'success');
+                    loadVendorsTable();
+                    
+                    // Refresh vendor filters since vendor categories might have changed
+                    await loadAdminVendorFilters();
+                    
+                } catch (error) {
+                    console.error('Error deleting vendor:', error);
+                    showNotification('Gagal menghapus vendor: ' + error.message, 'error');
+                }
+            });
         }
 
         // Load vendor products page
@@ -3483,6 +3386,7 @@
             const price = parseInt(document.getElementById('productPrice').value);
             const stock = parseInt(document.getElementById('productStock').value);
             const imageUrl = document.getElementById('productImageUrl').value.trim();
+            const type = document.getElementById('productType').value.trim();
             
             if (!name || !description || !price || stock < 0) {
                 showNotification('Semua field wajib harus diisi dengan benar', 'error');
@@ -3497,6 +3401,7 @@
                     stock: stock,
                     category: currentUser.vendor_category,
                     image_url: imageUrl || null,
+                    type: type || null,
                     created_by: currentUser.id,
                     created_at: new Date().toISOString()
                 };
@@ -3568,6 +3473,7 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="text-left py-4 px-6 font-medium text-gray-700">Produk</th>
+                                <th class="text-left py-4 px-6 font-medium text-gray-700">Tipe</th>
                                 <th class="text-left py-4 px-6 font-medium text-gray-700">Deskripsi</th>
                                 <th class="text-left py-4 px-6 font-medium text-gray-700">Harga</th>
                                 <th class="text-left py-4 px-6 font-medium text-gray-700">Stok</th>
@@ -3591,6 +3497,7 @@
                                             </div>
                                         </div>
                                     </td>
+                                    <td class="py-4 px-6 text-sm text-gray-600">${product.type || '-'}</td>
                                     <td class="py-4 px-6">
                                         <p class="text-sm text-gray-900 max-w-xs truncate" title="${product.description || 'Tidak ada deskripsi'}">
                                             ${product.description || 'Tidak ada deskripsi'}
@@ -3726,6 +3633,11 @@
                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                 </div>
                                 <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Tipe (Opsional)</label>
+                                    <input type="text" id="editProductType" value="${product.type || ''}" placeholder="Contoh: Makanan, Minuman"
+                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                </div>
+                                <div class="md:col-span-2">
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
                                     <input type="text" id="editProductCategory" value="${getVendorName(product.category)}" readonly 
                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600">
@@ -3799,6 +3711,7 @@
             const price = parseInt(document.getElementById('editProductPrice').value);
             const stock = parseInt(document.getElementById('editProductStock').value);
             const imageUrl = document.getElementById('editProductImageUrl').value.trim();
+            const type = document.getElementById('editProductType').value.trim();
             
             if (!name || !description || !price || stock < 0) {
                 showNotification('Semua field wajib harus diisi dengan benar', 'error');
@@ -3813,6 +3726,7 @@
                     price: price,
                     stock: stock,
                     image_url: imageUrl || null,
+                    type: type || null,
                     updated_at: new Date().toISOString()
                 };
                 
@@ -3844,40 +3758,120 @@
 
         // Delete product
         async function deleteProduct(productId, productName) {
-            if (!confirm(`Apakah Anda yakin ingin menghapus produk "${productName}"?`)) {
-                return;
-            }
-            
-            if (!supabaseClient) {
-                showNotification('Koneksi database tidak tersedia', 'error');
-                return;
-            }
-            
-            try {
-                // Delete product from database
-                const { error } = await supabaseClient
-                    .from('products')
-                    .delete()
-                    .eq('id', productId);
-                
-                if (error) throw error;
-                
-                // Remove from local products array
-                const productIndex = products.findIndex(p => p.id == productId);
-                if (productIndex > -1) {
-                    products.splice(productIndex, 1);
+            showConfirmationModal(`Apakah Anda yakin ingin menghapus produk "${productName}"?`, async () => {
+                if (!supabaseClient) {
+                    showNotification('Koneksi database tidak tersedia', 'error');
+                    return;
                 }
                 
-                showNotification(`Produk "${productName}" berhasil dihapus`, 'success');
-                loadVendorProductsTable();
-                
-                // Refresh main products display
-                renderProducts();
-                
-            } catch (error) {
-                console.error('Error deleting product:', error);
-                showNotification('Gagal menghapus produk: ' + error.message, 'error');
+                try {
+                    // Delete product from database
+                    const { error } = await supabaseClient
+                        .from('products')
+                        .delete()
+                        .eq('id', productId);
+                    
+                    if (error) throw error;
+                    
+                    // Remove from local products array
+                    const productIndex = products.findIndex(p => p.id == productId);
+                    if (productIndex > -1) {
+                        products.splice(productIndex, 1);
+                    }
+                    
+                    showNotification(`Produk "${productName}" berhasil dihapus`, 'success');
+                    loadVendorProductsTable();
+                    
+                    // Refresh main products display
+                    renderProducts();
+                    
+                } catch (error) {
+                    console.error('Error deleting product:', error);
+                    showNotification('Gagal menghapus produk: ' + error.message, 'error');
+                }
+            });
+        }
+        
+        // Print Order Invoice
+        function printOrder(orderId) {
+            const order = orders.find(o => o.id == orderId);
+            if (!order) {
+                showNotification('Pesanan tidak ditemukan', 'error');
+                return;
             }
+
+            const orderItems = order.items || [];
+            const total = order.total || order.total_amount || 0;
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Struk Pesanan #${order.id}</title>
+                    <style>
+                        body { font-family: 'Courier New', Courier, monospace; margin: 20px; color: #333; }
+                        .container { width: 300px; margin: auto; }
+                        h1 { text-align: center; margin: 0; font-size: 20px; }
+                        h2 { text-align: center; margin: 5px 0 20px; font-size: 14px; border-bottom: 1px dashed #999; padding-bottom: 10px; }
+                        p { margin: 2px 0; font-size: 12px; }
+                        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+                        th, td { text-align: left; padding: 4px 0; }
+                        .item-row td { vertical-align: top; }
+                        .total-row td { border-top: 1px dashed #999; padding-top: 10px; font-weight: bold; }
+                        .text-right { text-align: right; }
+                        .footer { text-align: center; margin-top: 20px; font-size: 12px; border-top: 1px dashed #999; padding-top: 10px;}
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <h1>Masakin Aja</h1>
+                        <h2>Struk Pesanan</h2>
+                        <p><strong>No. Pesanan:</strong> #${order.id}</p>
+                        <p><strong>Tanggal:</strong> ${new Date(order.created_at).toLocaleString('id-ID')}</p>
+                        <p><strong>Customer:</strong> ${order.customer_name || 'Customer'}</p>
+                        <p><strong>Email:</strong> ${order.customer_email || 'No email'}</p>
+                        <br>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th class="text-right">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${orderItems.map(item => `
+                                    <tr class="item-row">
+                                        <td>
+                                            ${item.product_name || 'Produk'}<br>
+                                            ${item.quantity || 1} x Rp ${formatPrice(item.price || 0)}
+                                        </td>
+                                        <td class="text-right">Rp ${formatPrice((item.price || 0) * (item.quantity || 1))}</td>
+                                    </tr>
+                                `).join('')}
+                                <tr class="total-row">
+                                    <td>Total</td>
+                                    <td class="text-right">Rp ${formatPrice(total)}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <br>
+                        <p><strong>Metode Pembayaran:</strong> ${getPaymentMethodText(order.payment_method || 'cash')}</p>
+                        <div class="footer">
+                            <p>Terima kasih telah berbelanja!</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `);
+
+            printWindow.document.close();
+            printWindow.focus(); 
+            
+            // Use a timeout to ensure the content is fully loaded before printing
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 250);
         }
 
         // Show notification
@@ -3920,8 +3914,53 @@
                 }
             }, 5000);
         }
-    </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98dba6f017717550',t:'MTc2MDMyNTExMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
-</html>
 
+        // Show confirmation modal (replacement for confirm())
+        function showConfirmationModal(message, onConfirm) {
+            // Remove existing modals
+            hideConfirmationModal();
+
+            const modalHTML = `
+                <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm">
+                        <div class="p-6">
+                            <div class="text-center">
+                                <div class="mx-auto w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
+                                    <i class="fas fa-exclamation-triangle text-yellow-500 text-2xl"></i>
+                                </div>
+                                <h3 class="text-lg font-medium text-gray-900">Konfirmasi</h3>
+                                <div class="mt-2 text-sm text-gray-600">
+                                    <p>${message}</p>
+                                </div>
+                            </div>
+                            <div class="mt-6 flex space-x-3">
+                                <button id="confirmBtn" class="flex-1 bg-red-600 text-white py-2 rounded-lg font-medium hover:bg-red-700 transition-colors">
+                                    Ya, Lanjutkan
+                                </button>
+                                <button id="cancelBtn" class="flex-1 bg-gray-200 text-gray-800 py-2 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+                                    Batal
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+            document.getElementById('confirmBtn').onclick = () => {
+                onConfirm();
+                hideConfirmationModal();
+            };
+            document.getElementById('cancelBtn').onclick = hideConfirmationModal;
+        }
+
+        function hideConfirmationModal() {
+            const modal = document.getElementById('confirmationModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+    </script>
+</body>
+</html>
 
