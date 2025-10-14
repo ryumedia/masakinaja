@@ -4009,14 +4009,14 @@
                         body { font-family: 'Courier New', Courier, monospace; margin: 20px; color: #333; }
                         .container { width: 300px; margin: auto; }
                         h1 { text-align: center; margin: 0; font-size: 28px; }
-                        h2 { text-align: center; margin: 5px 0 20px; font-size: 14px; border-bottom: 1px dashed #999; padding-bottom: 10px; }
-                        p { margin: 2px 0; font-size: 14px; }
+                        h2 { text-align: center; margin: 5px 0 20px; font-size: 20px; border-bottom: 1px dashed #999; padding-bottom: 10px; }
+                        p { margin: 2px 0; font-size: 16px; }
                         table { width: 100%; border-collapse: collapse; font-size: 18px; }
                         th, td { text-align: left; padding: 4px 0; }
                         .item-row td { vertical-align: top; }
                         .total-row td { border-top: 1px dashed #999; padding-top: 10px; font-weight: bold; }
                         .text-right { text-align: right; }
-                        .footer { text-align: center; margin-top: 20px; font-size: 14px; border-top: 1px dashed #999; padding-top: 10px;}
+                        .footer { text-align: center; margin-top: 20px; font-size: 12px; border-top: 1px dashed #999; padding-top: 10px;}
                         @media print {
                             body { margin: 0; }
                         }
@@ -4026,10 +4026,10 @@
                     <div class="container">
                         <h1>Masakin Aja</h1>
                         <h2>Struk Pesanan</h2>
-                        <h1><strong>No. Pesanan:</strong> #${order.id}</p>
-                        <p><strong>Tanggal:</strong> ${new Date(order.created_at).toLocaleString('id-ID')}</p>
+                        <h1><strong>No.Pesanan:</strong> #${order.id}</p>
+                        <p><strong>Date:</strong> ${new Date(order.created_at).toLocaleString('id-ID')}</p>
                         <h1><strong></strong> ${order.customer_name || 'Customer'}</p>
-                        <p><strong>Email:</strong> ${order.customer_email || 'No email'}</p>
+                        <h2><strong></strong> ${order.customer_phone || 'phone'}</p>
                         <br>
                         <table>
                             <thead>
@@ -4179,5 +4179,6 @@
     </script>
 </body>
 </html>
+
 
 
