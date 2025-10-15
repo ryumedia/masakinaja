@@ -717,6 +717,7 @@
         let orders = [];
         let cart = JSON.parse(localStorage.getItem('masakinAjaCart')) || [];
         let currentTypeFilter = '';
+        let isScrollToTopEnabled = true;
         let supabaseClient = null;
 
         // Initialize app
@@ -757,7 +758,7 @@
         const scrollToTopBtn = document.getElementById('scrollToTopBtn');
         
         window.onscroll = () => {
-            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+           if (isScrollToTopEnabled && (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300)) {
                 scrollToTopBtn.classList.remove('hidden');
             } else {
                 scrollToTopBtn.classList.add('hidden');
@@ -826,7 +827,7 @@
                 
                 // Load data from database
                 loadDataFromDatabase();
-                showNotification('Supabase terhubung dan data dimuat!', 'success');
+                showNotification('Terhubung!', 'success');
             } catch (error) {
                 console.error('Supabase initialization error:', error);
                 showNotification('Gagal menginisialisasi Supabase', 'error');
@@ -1285,6 +1286,14 @@
 
         // Show section
         function showSection(section) {
+            // Atur saklar untuk tombol Scroll to Top
+            if (section === 'shopping') {
+                isScrollToTopEnabled = true;
+            } else {
+                isScrollToTopEnabled = false;
+                // Langsung sembunyikan tombol saat pindah ke halaman lain
+                document.getElementById('scrollToTopBtn').classList.add('hidden');
+            }
             // Hide all sections
             document.querySelectorAll('.section-content').forEach(s => s.classList.add('hidden'));
             
@@ -4211,6 +4220,7 @@
     </script>
 </body>
 </html>
+
 
 
 
