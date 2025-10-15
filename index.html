@@ -650,7 +650,7 @@
     <!-- Scroll to Top Button -->
     <button id="scrollToTopBtn" 
             onclick="scrollToTop()"
-            class="hidden fixed bottom-6 right-6 bg-gradient-to-r from-orange-500 to-orange-600 text-white w-16 h-16 rounded-full shadow-lg hover:from-orange-500 hover:to-orange-600 transition-all transform hover:scale-110 focus:outline-none z-50">
+            class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-500 to-orange-600 text-white w-16 h-16 rounded-full shadow-lg hover:from-orange-500 hover:to-orange-600 transition-all transform hover:scale-110 focus:outline-none z-50">
         <i class="fa-solid fa-arrow-up"></i>
     </button>
 
@@ -715,7 +715,7 @@
         let currentUser = null;
         let products = [];
         let orders = [];
-        let cart = [];
+        let cart = JSON.parse(localStorage.getItem('masakinAjaCart')) || [];
         let currentTypeFilter = '';
         let supabaseClient = null;
 
@@ -1271,6 +1271,7 @@
         function logout() {
             currentUser = null;
             cart = [];
+            localStorage.removeItem('masakinAjaCart');
             
             document.getElementById('loginSection').classList.remove('hidden');
             document.getElementById('userSection').classList.add('hidden');
@@ -1998,6 +1999,11 @@
             return new Intl.NumberFormat('id-ID').format(price);
         }
 
+        // FUNGSI BARU UNTUK MENYIMPAN KERANJANG
+        function saveCartToLocalStorage() {
+            localStorage.setItem('masakinAjaCart', JSON.stringify(cart));
+        }
+        
         // Filter by type
         function filterByType(event, type) {
             currentTypeFilter = type;
@@ -2121,6 +2127,7 @@
             
             updateCartBadge();
             showNotification(`${product.name} ditambahkan ke keranjang`, 'success');
+            saveCartToLocalStorage();
         }
 
         // Update cart badge
@@ -2169,7 +2176,6 @@
                                          onerror="this.src='https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZLYhhcn24Ldg-Oi9fPz47a-r_IVHV2tbr1VhFXs424_MkjJfgrSIZyVmddxmyZ5PaUAT4gxPPXe_uH5DziW2rsJnIlTycyAAYrMrAz588ytSsbqyHfDVI3xvlXwpQfCaZqmNcFnecApQIapC2jGVcDQgDp01G_8fPvVV397vxuOU_Ge8aDKHupI4Yo1I/s500/Masakin%20aja.png'">
                                     <div class="flex-1">
                                         <h4 class="font-medium text-gray-900">${item.product.name}</h4>
-                                        <p class="text-sm text-gray-500">${getVendorName(item.product.category)}</p>
                                         <p class="text-lg font-semibold text-blue-600">Rp ${formatPrice(item.price)}</p>
                                     </div>
                                     <div class="flex items-center space-x-3">
@@ -2275,6 +2281,7 @@
                 item.quantity = newQuantity;
                 updateCartBadge();
                 renderCart();
+                saveCartToLocalStorage();
             }
         }
 
@@ -2284,6 +2291,7 @@
             updateCartBadge();
             renderCart();
             showNotification('Item dihapus dari keranjang', 'success');
+            saveCartToLocalStorage();
         }
 
         // Update payment information based on selected method
@@ -2452,6 +2460,7 @@
                 
                 // Clear cart
                 cart = [];
+                localStorage.removeItem('masakinAjaCart');
                 updateCartBadge();
                 
                 showNotification('Pesanan berhasil dibuat! Cek halaman "Pesanan Saya"', 'success');
@@ -4202,6 +4211,7 @@
     </script>
 </body>
 </html>
+
 
 
 
