@@ -646,6 +646,13 @@
             </div>
         </section>
     </main>
+    
+    <!-- Scroll to Top Button -->
+    <button id="scrollToTopBtn" 
+            onclick="scrollToTop()"
+            class="hidden fixed bottom-6 right-6 bg-gradient-to-r from-orange-500 to-orange-600 text-white w-12 h-12 rounded-full shadow-lg hover:from-blue-600 hover:to-purple-700 transition-all transform hover:scale-110 focus:outline-none z-50">
+        <i class="fas fa-arrow-up"></i>
+    </button>
 
     <!-- Auth Modal -->
     <div id="authModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
@@ -745,6 +752,22 @@
             document.getElementById('vendorForm').addEventListener('submit', handleAddVendor);
             document.getElementById('productForm').addEventListener('submit', handleAddProduct);
         }
+
+        // --- SCROLL TO TOP LOGIC ---
+        const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+        
+        window.onscroll = () => {
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                scrollToTopBtn.classList.remove('hidden');
+            } else {
+                scrollToTopBtn.classList.add('hidden');
+            }
+        };
+
+        const scrollToTop = () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+        // --- END SCROLL TO TOP LOGIC ---
 
         // Fungsi baru untuk memeriksa sesi saat halaman dimuat
         async function checkSession() {
@@ -4179,6 +4202,7 @@
     </script>
 </body>
 </html>
+
 
 
 
