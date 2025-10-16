@@ -1476,10 +1476,13 @@
                 order.items && order.items.some(item => item.category === currentUser.vendor_category)
             );
             
+            // Filter keluar pesanan yang dibatalkan untuk kalkulasi statistik
+            const validVendorOrders = vendorOrders.filter(order => order.status !== 'cancelled');
+            
             // Calculate stats
             const totalProducts = vendorProducts.length;
-            const totalOrders = vendorOrders.length;
-            const totalRevenue = vendorOrders.reduce((sum, order) => {
+            const totalOrders = validVendorOrders.length; // Gunakan daftar yang sudah difilter
+            const totalRevenue = validVendorOrders.reduce((sum, order) => { // Gunakan daftar yang sudah difilter
                 // Only count revenue from this vendor's products
                 const vendorItems = (order.items || []).filter(item => item.category === currentUser.vendor_category);
                 return sum + vendorItems.reduce((itemSum, item) => itemSum + (item.price * item.quantity), 0);
@@ -1548,6 +1551,7 @@
 
             // Aggregate product quantities from filtered orders
             filteredOrders.forEach(order => {
+                if (order.status === 'cancelled') return;
                 const vendorItems = (order.items || []).filter(item => item.category === currentUser.vendor_category);
                 vendorItems.forEach(item => {
                     if (productSummary[item.product_name]) {
@@ -1681,10 +1685,12 @@
         function loadAdminData() {
             if (!currentUser || currentUser.role !== 'admin') return;
             
+            const validOrders = orders.filter(order => order.status !== 'cancelled');
+            
             // Calculate stats based on ALL data (not filtered)
             const totalProducts = products.length;
-            const totalOrders = orders.length;
-            const totalRevenue = orders.reduce((sum, order) => sum + (order.total || order.total_amount || 0), 0);
+            const totalOrders = validOrders.length; // Gunakan daftar yang sudah difilter
+            const totalRevenue = validOrders.reduce((sum, order) => sum + (order.total || order.total_amount || 0), 0); // Gunakan daftar yang sudah difilter
             
             // Update stats
             document.getElementById('totalProducts').textContent = totalProducts;
@@ -4216,6 +4222,7 @@
     </script>
 </body>
 </html>
+
 
 
 
