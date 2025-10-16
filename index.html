@@ -2780,7 +2780,7 @@
                                 <th class="text-left py-4 px-6 font-medium text-gray-700">Harga</th>
                                 <th class="text-left py-4 px-6 font-medium text-gray-700">Stok</th>
                                 <th class="text-left py-4 px-6 font-medium text-gray-700">Status</th>
-                                <th class="text-left py-4 px-6 font-medium text-gray-700">Ditambahkan</th>
+                                <th class="text-left py-4 px-6 font-medium text-gray-700">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
@@ -2834,13 +2834,19 @@
                                                 'Tersedia'
                                             }
                                         </span>
-                                    </td>
-                                    <td class="py-4 px-6 text-sm text-gray-600">
-                                        ${new Date(product.created_at).toLocaleDateString('id-ID', {
-                                            day: 'numeric',
-                                            month: 'short',
-                                            year: 'numeric'
-                                        })}
+                                <td class="py-4 px-6">
+                                    <div class="flex space-x-4">
+                                    <button onclick="editProduct('${product.id}')" 
+                                            class="text-blue-600 hover:text-blue-800 transition-colors" 
+                                            title="Edit Produk">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="deleteProduct('${product.id}', '${product.name}')" 
+                                            class="text-red-600 hover:text-red-800 transition-colors" 
+                                            title="Hapus Produk">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    </div>
                                     </td>
                                 </tr>
                             `).join('')}
@@ -3810,8 +3816,8 @@
                 return;
             }
             
-            if (!currentUser || currentUser.role !== 'vendor') {
-                showNotification('Hanya vendor yang dapat mengedit produk', 'error');
+           if (!currentUser || (currentUser.role !== 'vendor' && currentUser.role !== 'admin')) {
+                showNotification('Hanya vendor atau admin yang dapat mengedit produk', 'error');
                 return;
             }
             
@@ -3824,7 +3830,7 @@
                 }
                 
                 // Check if this product belongs to current vendor
-                if (product.category !== currentUser.vendor_category) {
+                if (currentUser.role === 'vendor' && product.category !== currentUser.vendor_category) {
                     showNotification('Anda hanya dapat mengedit produk dari kategori Anda sendiri', 'error');
                     return;
                 }
@@ -3941,8 +3947,8 @@
                 return;
             }
             
-            if (!currentUser || currentUser.role !== 'vendor') {
-                showNotification('Hanya vendor yang dapat mengedit produk', 'error');
+            if (!currentUser || (currentUser.role !== 'vendor' && currentUser.role !== 'admin')) {
+                showNotification('Hanya vendor atau admin yang dapat mengedit produk', 'error');
                 return;
             }
             
@@ -3987,6 +3993,7 @@
                 showNotification(`Produk "${name}" berhasil diperbarui!`, 'success');
                 hideEditProductModal();
                 loadVendorProductsTable();
+                loadAdminProductsTable();
                 
                 // Refresh main products display
                 renderProducts();
@@ -4222,6 +4229,7 @@
     </script>
 </body>
 </html>
+
 
 
 
