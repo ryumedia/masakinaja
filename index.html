@@ -2023,6 +2023,19 @@
             }
         }
 
+    // Get product status text and class
+        function getProductStatusTextAndClass(status) {
+            switch (status) {
+                case 'active':
+                    return { text: 'Aktif', class: 'bg-green-100 text-green-800' };
+                case 'inactive':
+                    return { text: 'Nonaktif', class: 'bg-gray-100 text-gray-800' };
+                default:
+                    // Default ke 'Aktif' untuk produk lama yang belum memiliki kolom status
+                    return { text: 'Aktif', class: 'bg-green-100 text-green-800' };
+            }
+        }
+
         // Get vendor name - converts category to display name
         function getVendorName(category) {
             if (!category) return 'Unknown Vendor';
@@ -2079,14 +2092,22 @@
                 return;
             }
             
-            // Filter products by type if needed
-            let filteredProducts = products;
-            if (currentTypeFilter) {
-                filteredProducts = products.filter(p => (p.type || '').toLowerCase() === currentTypeFilter.toLowerCase());
-            }
+            // ... (di dalam fungsi renderProducts)
             
-            // Check if no products available
-            if (filteredProducts.length === 0) {
+// Filter produk untuk HANYA menampilkan yang statusnya 'active' dan sesuai tipe
+const filteredProducts = products.filter(product => {
+    // Kondisi 1: Status produk harus 'active' (atau null jika kolomnya belum ada)
+    const isActive = product.status === 'active' || product.status == null;
+    
+    // Kondisi 2: Tipe produk harus cocok dengan filter dropdown (jika ada yang dipilih)
+    const typeMatch = !currentTypeFilter || (product.type || '').toLowerCase() === currentTypeFilter.toLowerCase();
+    
+    // Produk akan ditampilkan hanya jika kedua kondisi terpenuhi
+    return isActive && typeMatch;
+});
+
+// Check if no products available
+if (filteredProducts.length === 0) {
                 grid.innerHTML = `
                     <div class="col-span-full text-center py-16">
                         <div class="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -2859,32 +2880,38 @@ async function checkout() {
                                             <span class="text-sm text-gray-500 ml-1">unit</span>
                                         </div>
                                     </td>
-                                    <td class="py-4 px-6">
-                                        <span class="px-3 py-1 rounded-full text-sm font-medium ${
-                                            (product.stock || 0) === 0 ? 'bg-red-100 text-red-800' :
-                                            (product.stock || 0) <= 10 ? 'bg-yellow-100 text-yellow-800' :
-                                            'bg-green-100 text-green-800'
-                                        }">
-                                            ${
-                                                (product.stock || 0) === 0 ? 'Habis' :
-                                                (product.stock || 0) <= 10 ? 'Stok Rendah' :
-                                                'Tersedia'
-                                            }
+                                <td class="py-4 px-6">
+                                    <div class="flex flex-col items-start space-y-1">
+                                        <span class="px-3 py-1 rounded-full text-xs font-medium ${
+                                        (product.stock || 0) === 0 ? 'bg-red-100 text-red-800' :
+                                        (product.stock || 0) <= 10 ? 'bg-yellow-100 text-yellow-800' :
+                                        'bg-green-100 text-green-800'
+                                    }">
+                                    ${
+                                        (product.stock || 0) === 0 ? 'Habis' :
+                                        (product.stock || 0) <= 10 ? 'Stok Rendah' :
+                                        'Tersedia'
+                                    }
                                         </span>
-                                    <td class="py-4 px-6">
-    					<div class="flex space-x-4">
-        					<button onclick="editProduct('${product.id}')" 
-                						class="text-blue-600 hover:text-blue-800 transition-colors" 
-                						title="Edit Produk">
-            					<i class="fas fa-edit"></i>
-        					</button>
-        					<button onclick="deleteProduct('${product.id}', '${product.name}')" 
-                						class="text-red-600 hover:text-red-800 transition-colors" 
-                						title="Hapus Produk">
-            					<i class="fas fa-trash"></i>
-        					</button>
-    					</div>
-				</td>
+                                        <span class="px-3 py-1 rounded-full text-xs font-medium ${getProductStatusTextAndClass(product.status).class}">
+                                        ${getProductStatusTextAndClass(product.status).text}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="py-4 px-6">
+    					            <div class="flex space-x-4">
+        					            <button onclick="editProduct('${product.id}')" 
+                						    class="text-blue-600 hover:text-blue-800 transition-colors" 
+                						    title="Edit Produk">
+            					            <i class="fas fa-edit"></i>
+        					                </button>
+        					                <button onclick="deleteProduct('${product.id}', '${product.name}')" 
+                						    class="text-red-600 hover:text-red-800 transition-colors" 
+                						    title="Hapus Produk">
+            					            <i class="fas fa-trash"></i>
+        					            </button>
+    					            </div>
+				                </td>
                                 </tr>
                             `).join('')}
                         </tbody>
@@ -3799,9 +3826,14 @@ async function checkout() {
                                         </div>
                                     </td>
                                     <td class="py-4 px-6">
-                                        <span class="px-3 py-1 rounded-full text-sm font-medium ${(product.stock || 0) > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                                            ${(product.stock || 0) > 0 ? 'Tersedia' : 'Habis'}
-                                        </span>
+                                        <div class="flex flex-col items-start space-y-1">
+                                            <span class="px-3 py-1 rounded-full text-xs font-medium ${(product.stock || 0) > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                                                ${(product.stock || 0) > 0 ? 'Tersedia' : 'Habis'}
+                                            </span>
+                                            <span class="px-3 py-1 rounded-full text-xs font-medium ${getProductStatusTextAndClass(product.status).class}">
+                                                ${getProductStatusTextAndClass(product.status).text}
+                                            </span>
+                                        </div>
                                     </td>
                                     <td class="py-4 px-6 text-sm text-gray-600">
                                         ${new Date(product.created_at).toLocaleDateString('id-ID', {
@@ -3939,6 +3971,17 @@ async function checkout() {
                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                     <p class="text-xs text-gray-500 mt-1">Kosongkan untuk menggunakan gambar default</p>
                                 </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Status Produk</label>
+                                    <div class="flex items-center space-x-3">
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" id="editProductStatus" class="sr-only peer">
+                                            <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                                        </label>
+                                        <span id="editProductStatusLabel" class="text-sm font-medium text-gray-900"></span>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1">Status 'Aktif' akan menampilkan produk di halaman belanja.</p>
+                                </div>
                                 <div class="md:col-span-2 flex space-x-3 pt-4">
                                     <button type="submit" 
                                             class="flex-1 bg-gradient-to-r from-green-500 to-blue-600 text-white py-3 rounded-lg font-medium hover:from-green-600 hover:to-blue-700 transition-all">
@@ -3962,6 +4005,22 @@ async function checkout() {
             // Add modal to body
             document.body.insertAdjacentHTML('beforeend', modalHTML);
             
+            // --- LOGIKA BARU UNTUK SAKLAR ---
+            const statusToggle = document.getElementById('editProductStatus');
+            const statusLabel = document.getElementById('editProductStatusLabel');
+            
+            // Set initial state of the toggle
+            // Default to 'active' if status is null (for older products)
+            statusToggle.checked = product.status === 'active' || product.status == null;
+            
+            const updateLabel = () => {
+                statusLabel.textContent = statusToggle.checked ? 'Aktif' : 'Nonaktif';
+            };
+            
+            statusToggle.addEventListener('change', updateLabel);
+            updateLabel(); // Set initial label text
+            // --- AKHIR LOGIKA BARU ---
+
             // Add event listener for form submission
             document.getElementById('editProductForm').addEventListener('submit', handleEditProduct);
         }
@@ -3995,9 +4054,10 @@ async function checkout() {
             const stock = parseInt(document.getElementById('editProductStock').value);
             const imageUrl = document.getElementById('editProductImageUrl').value.trim();
             const type = document.getElementById('editProductType').value.trim();
+            const status = document.getElementById('editProductStatus').checked ? 'active' : 'inactive';
             
             if (!name || !price || stock < 0) {
-                showNotification('Semua field wajib harus diisi dengan benar', 'error');
+                showNotification('Nama, Harga, dan Stok harus diisi dengan benar', 'error');
                 return;
             }
             
@@ -4010,6 +4070,7 @@ async function checkout() {
                     stock: stock,
                     image_url: imageUrl || null,
                     type: type || null,
+                    status: status,
                     updated_at: new Date().toISOString()
                 };
                 
@@ -4029,7 +4090,7 @@ async function checkout() {
                 showNotification(`Produk "${name}" berhasil diperbarui!`, 'success');
                 hideEditProductModal();
                 loadVendorProductsTable();
-		loadAdminProductsTable();
+		        loadAdminProductsTable();
                 
                 // Refresh main products display
                 renderProducts();
@@ -4360,4 +4421,3 @@ async function checkout() {
     </script>
 </body>
 </html>
-
