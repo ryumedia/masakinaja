@@ -1468,6 +1468,14 @@
                                         <span class="font-medium text-gray-900">Total Pesanan:</span>
                                         <span class="text-xl font-bold text-blue-600">Rp ${formatPrice(order.total || order.total_amount || 0)}</span>
                                     </div>
+                                    ${order.notes ? `
+                                    <div class="mt-4 pt-4 border-t border-dashed border-gray-200">
+                                        <p class="font-medium text-gray-900 mb-2 flex items-center">
+                                             <i class="fas fa-pencil-alt mr-2 text-gray-500"></i>Catatan Anda:
+                                        </p>
+                                        <p class="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-200 whitespace-pre-wrap">${order.notes}</p>
+                                    </div>
+                                    ` : ''}
                                     <div class="mt-4">
                                         ${
                                             (order.payment_status === 'unpaid' || !order.payment_status) // Anggap null/kosong sebagai belum dibayar
@@ -1680,9 +1688,19 @@
                             </div>
                         </td>
                         <td class="py-4 px-6">
-                            <span class="px-3 py-1 rounded-full text-sm font-medium ${getOrderStatusClass(order.status || 'pending')}">
-                                ${getOrderStatusText(order.status || 'pending')}
-                            </span>
+                            <div class="flex flex-col items-start space-y-2">
+                                <span class="px-3 py-1 rounded-full text-sm font-medium ${getOrderStatusClass(order.status || 'pending')}">
+                                    ${getOrderStatusText(order.status || 'pending')}
+                                </span>   
+                                ${order.notes ? `
+                            <div class="text-xs text-gray-600 italic pt-2 border-t border-dashed w-full">
+                                <p class="flex items-start">
+                                    <i class="fas fa-pencil-alt mr-2 mt-1 flex-shrink-0 text-gray-400"></i>
+                                <span>${order.notes}</span>
+                                </p>
+                            </div>
+                            ` : ''}
+                        </div>
                         </td>
                        </tr>
                 `;
@@ -1939,9 +1957,19 @@
                                 </td>
                                 <td class="py-4 px-6 font-medium text-gray-900">Rp ${formatPrice(order.total || order.total_amount || 0)}</td>
                                 <td class="py-4 px-6">
-                                    <span class="px-3 py-1 rounded-full text-sm font-medium ${getOrderStatusClass(order.status || 'pending')}">
-                                        ${getOrderStatusText(order.status || 'pending')}
-                                    </span>
+                                    <div class="flex flex-col items-start space-y-2">
+                                        <span class="px-3 py-1 rounded-full text-sm font-medium ${getOrderStatusClass(order.status || 'pending')}">
+                                            ${getOrderStatusText(order.status || 'pending')}
+                                        </span>
+                                        ${order.notes ? `
+                                        <div class="text-xs text-gray-600 italic pt-2 border-t border-dashed w-full">
+                                            <p class="flex items-start">
+                                                <i class="fas fa-pencil-alt mr-2 mt-1 flex-shrink-0 text-gray-400"></i>
+                                                <span>${order.notes}</span>
+                                            </p>
+                                        </div>
+                                        ` : ''}
+                                    </div>
                                 </td>
                                 <td class="py-4 px-6">
     <p class="text-sm font-medium text-gray-900">${getPaymentMethodText(order.payment_method || 'cash')}</p>
@@ -2264,6 +2292,16 @@ grid.innerHTML = filteredProducts.map(product => `
                     </div>
                 </div>
                 
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+                    <label for="orderNotes" class="block text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-pencil-alt mr-2"></i>Catatan Pesanan (Opsional)
+                    </label>
+                    <textarea id="orderNotes"
+                              rows="3"
+                              placeholder="Contoh: Untuk Rabu atau Untuk Kamis"
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"></textarea>
+                </div>
+
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                     <div class="flex justify-between items-center mb-6">
                         <span class="text-lg font-semibold text-gray-900">Total</span>
@@ -2467,12 +2505,16 @@ async function checkout() {
             
             const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             
+            // Ambil nilai dari textarea catatan
+            const notes = document.getElementById('orderNotes').value.trim();
+
             // Create new order with proper database schema
             const newOrder = {
                 user_id: currentUser.id || `demo-${Date.now()}`, // Ensure valid user_id
                 customer_name: currentUser.name,
                 customer_email: currentUser.email,
                 customer_phone: currentUser.phone_number,
+                notes: notes || null,
                 items: cart.map(item => ({
                     product_id: item.product_id,
                     product_name: item.product.name,
