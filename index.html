@@ -2300,12 +2300,12 @@ grid.innerHTML = filteredProducts.map(product => `
                 
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
                     <label for="orderNotes" class="block text-lg font-semibold text-gray-900 mb-4">
-                        <i class="fas fa-pencil-alt mr-2"></i>Catatan Pesanan (Opsional)
+                        <i class="fas fa-pencil-alt mr-2"></i>Catatan Pesanan (Wajib)
                     </label>
                     <textarea id="orderNotes"
                               rows="3"
                               placeholder="Contoh: Untuk Rabu atau Untuk Kamis"
-                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"></textarea>
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" required></textarea>
                 </div>
 
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -2513,6 +2513,15 @@ async function checkout() {
             
             // Ambil nilai dari textarea catatan
             const notes = document.getElementById('orderNotes').value.trim();
+
+            // Validasi apakah catatan sudah diisi
+            if (!notes) {
+                showNotification('Catatan Pesanan wajib diisi (Contoh: Untuk Rabu)', 'error');
+                // Aktifkan kembali tombol checkout agar tidak macet
+                checkoutButton.disabled = false;
+                checkoutButton.innerHTML = `<i class="fas fa-credit-card mr-2"></i>Checkout Sekarang`;
+                return; // Hentikan proses jika catatan kosong
+            }
 
             // Create new order with proper database schema
             const newOrder = {
@@ -4478,4 +4487,3 @@ async function checkout() {
     </script>
 </body>
 </html>
-
