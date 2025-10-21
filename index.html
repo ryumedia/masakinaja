@@ -550,6 +550,24 @@
             <div class="mb-8">
                 <h2 class="text-3xl font-bold text-gray-900 mb-6">Panel Admin</h2>
                 
+                <!-- Shop Status Control -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Pengaturan Status Toko</h3>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">Gunakan saklar ini untuk membuka atau menutup toko.</p>
+                            <p class="text-xs text-gray-500 mt-1">Saat ditutup, pelanggan tidak akan bisa melihat produk.</p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span id="shopStatusIndicator" class="px-3 py-1 rounded-full text-sm font-medium"></span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="shopStatusToggle" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Admin Stats -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                     <button onclick="showSection('adminProducts')" class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-105 w-full text-left">
@@ -758,6 +776,7 @@
         let currentTypeFilter = '';
         let isScrollToTopEnabled = true;
         let supabaseClient = null;
+        let shopStatus = 'open';
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', async function() { // Menjadi async
@@ -878,9 +897,12 @@
             if (!supabaseClient) return;
             
             try {
+                // Muat status toko terlebih dahulu
+                await loadShopStatus();
+                
                 // Load products first as other functions might depend on it
                 await loadProducts();
-                
+        
                 // Load other data
                 await loadOrders();
                 await loadUsers();
@@ -970,6 +992,31 @@
             } catch (error) {
                 console.error('Error loading type filters:', error);
                 updateShoppingTypeFilters([]); // Show no filters on error
+            }
+        }
+
+        async function loadShopStatus() {
+            if (!supabaseClient) return;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('settings')
+                    .select('setting_value')
+                    .eq('setting_name', 'shop_status')
+                    .single(); // Gunakan .single() karena kita hanya butuh satu baris
+
+                if (error) {
+                    if (error.code !== 'PGRST116') {
+                        throw error;
+                    }
+                    console.warn('Pengaturan "shop_status" tidak ditemukan. Menggunakan status default "open".');
+                    shopStatus = 'open';
+                } else if (data) {
+                    shopStatus = data.setting_value;
+                }
+                console.log('Status toko berhasil dimuat:', shopStatus);
+            } catch (error) {
+                console.error('Gagal memuat status toko:', error);
+                shopStatus = 'open';
             }
         }
 
@@ -1735,6 +1782,7 @@
         // Load admin data
         function loadAdminData() {
             if (!currentUser || currentUser.role !== 'admin') return;
+            setupShopStatusToggle();
             
            const validOrders = orders.filter(order => order.status !== 'cancelled');
             
@@ -1750,6 +1798,90 @@
             
             // Render all orders
             renderAdminOrders();
+        }
+
+        // Setup Shop Status Toggle in Admin Panel
+        function setupShopStatusToggle() {
+            const toggle = document.getElementById('shopStatusToggle');
+            const indicator = document.getElementById('shopStatusIndicator');
+            
+            if (!toggle || !indicator) return; // Exit if elements not found
+
+            // Set initial state based on global shopStatus variable
+            const isOpen = shopStatus === 'open';
+            toggle.checked = isOpen;
+
+            // Update indicator text and style
+            indicator.textContent = isOpen ? 'Buka' : 'Tutup';
+            indicator.className = `px-3 py-1 rounded-full text-sm font-medium ${
+                isOpen ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+            }`;
+
+            // Remove existing listener to prevent duplicates if function is called multiple times
+            toggle.removeEventListener('change', handleShopStatusChange); 
+            
+            // Add event listener to handle changes
+            toggle.addEventListener('change', handleShopStatusChange);
+        }
+
+        async function handleShopStatusChange() {
+            if (!supabaseClient) {
+                showNotification('Koneksi database tidak tersedia.', 'error');
+                // Revert toggle state if update fails early
+                const toggle = document.getElementById('shopStatusToggle');
+                if(toggle) toggle.checked = shopStatus === 'open'; 
+                return;
+            }
+            if (!currentUser || currentUser.role !== 'admin') {
+                 showNotification('Hanya admin yang dapat mengubah status toko.', 'error');
+                 const toggle = document.getElementById('shopStatusToggle');
+                 if(toggle) toggle.checked = shopStatus === 'open';
+                 return;
+            }
+
+            const toggle = document.getElementById('shopStatusToggle');
+            const indicator = document.getElementById('shopStatusIndicator');
+            const newStatus = toggle.checked ? 'open' : 'closed';
+            const oldStatus = shopStatus; // Save old status in case update fails
+
+            // Optimistic UI update (update indicator immediately)
+            indicator.textContent = newStatus === 'open' ? 'Buka' : 'Tutup';
+            indicator.className = `px-3 py-1 rounded-full text-sm font-medium ${
+                newStatus === 'open' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+            }`;
+            toggle.disabled = true; // Disable toggle during update
+
+            try {
+                // Update the setting in Supabase
+                const { error } = await supabaseClient
+                    .from('settings')
+                    .update({ setting_value: newStatus })
+                    .eq('setting_name', 'shop_status');
+
+                if (error) throw error;
+
+                // Update global variable on success
+                shopStatus = newStatus;
+                showNotification(`Status toko berhasil diubah menjadi "${newStatus === 'open' ? 'Buka' : 'Tutup'}"`, 'success');
+                
+                // Re-render products in case the shopping page is currently viewed
+                // This ensures the "Toko Tutup" message appears/disappears immediately
+                renderProducts(); 
+
+            } catch (error) {
+                console.error('Gagal memperbarui status toko:', error);
+                showNotification('Gagal memperbarui status toko: ' + error.message, 'error');
+                
+                // Revert UI changes if update failed
+                shopStatus = oldStatus; // Revert global variable
+                toggle.checked = oldStatus === 'open'; // Revert toggle state
+                indicator.textContent = oldStatus === 'open' ? 'Buka' : 'Tutup';
+                indicator.className = `px-3 py-1 rounded-full text-sm font-medium ${
+                    oldStatus === 'open' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                }`;
+            } finally {
+                toggle.disabled = false; // Re-enable toggle
+            }
         }
 
         // Apply admin filters
@@ -2114,6 +2246,21 @@
         function renderProducts() {
             const grid = document.getElementById('productsGrid');
             
+            if (shopStatus === 'closed') {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-16">
+                        <div class="bg-red-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-door-closed text-red-500 text-3xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">Warung Sedang Tutup</h3>
+                        <p class="text-gray-600 max-w-md mx-auto">
+                            Mohon maaf, saat ini kami sedang tidak menerima pesanan. Silakan kembali lagi nanti.
+                        </p>
+                    </div>
+                `;
+                return; // Hentikan fungsi di sini jika toko tutup
+            }
+
             // Check if Supabase is not configured yet in the hardcoded constants
             if (!supabaseClient) {
                  if (SUPABASE_URL === "https://URL_PROYEK_ANDA.supabase.co" || SUPABASE_ANON_KEY === "KUNCI_ANON_ANDA") {
@@ -4481,4 +4628,3 @@ async function checkout() {
     </script>
 </body>
 </html>
-
