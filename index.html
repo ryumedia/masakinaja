@@ -2451,7 +2451,7 @@ grid.innerHTML = filteredProducts.map(product => `
                     </label>
                     <textarea id="orderNotes"
                               rows="3"
-                              placeholder="Contoh: Untuk Rabu atau Untuk Kamis"
+                              placeholder="Jika Tidak Ada Catatan isi dengan "0" atau tanda "-""
                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" required></textarea>
                 </div>
 
@@ -2657,7 +2657,7 @@ async function checkout() {
 
             // Validasi apakah catatan sudah diisi
             if (!notes) {
-                showNotification('Catatan Pesanan wajib diisi (Contoh: Untuk Rabu)', 'error');
+                showNotification('Catatan Pesanan wajib diisi', 'error');
                 // Aktifkan kembali tombol checkout agar tidak macet
                 checkoutButton.disabled = false;
                 checkoutButton.innerHTML = `<i class="fas fa-credit-card mr-2"></i>Checkout Sekarang`;
@@ -4628,3 +4628,4 @@ async function checkout() {
     </script>
 </body>
 </html>
+
