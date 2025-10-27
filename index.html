@@ -584,7 +584,7 @@
                             <i class="fas fa-eye mr-1"></i>Klik untuk melihat daftar
                         </div>
                     </button>
-                    <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 text-white">
+                    <button onclick="showSection('adminSalesSummary')" class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 text-white hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105 w-full text-left">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-green-100 text-sm font-medium">Total Pesanan</p>
@@ -594,7 +594,10 @@
                                 <i class="fas fa-shopping-cart text-2xl"></i>
                             </div>
                         </div>
-                    </div>
+                        <div class="mt-2 text-green-100 text-sm">
+                                <i class="fas fa-eye mr-1"></i>Klik untuk melihat rekap item
+                        </div>
+                    </button>
                     <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-6 text-white">
                         <div class="flex items-center justify-between">
                             <div>
@@ -674,6 +677,65 @@
                     </div>
                     <div id="adminOrdersTable" class="overflow-x-auto">
                         <!-- All orders will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="adminSalesSummarySection" class="section-content hidden">
+            <div class="max-w-4xl mx-auto">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-900">Rekapitulasi Item Terjual</h2>
+                        <p class="text-gray-600 mt-1">Total kuantitas semua item yang terjual (tidak termasuk pesanan dibatalkan).</p>
+                    </div>
+                    <button onclick="showSection('admin')" class="text-blue-600 hover:text-blue-800 font-medium">
+                        <i class="fas fa-arrow-left mr-2"></i>Kembali ke Panel Admin
+                    </button>
+                </div>
+
+                <!-- Filter Section for Sales Summary -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+    <h3 class="text-lg font-semibold text-gray-900 mb-4">Filter Rekapitulasi</h3>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Filter Vendor</label>
+            <select id="summaryVendorFilter" onchange="applyAdminSummaryFilters()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="">Semua Vendor</option>
+                <!-- Options will be loaded dynamically -->
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Status Pesanan</label>
+            <select id="summaryStatusFilter" onchange="applyAdminSummaryFilters()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="">Semua Status Valid</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="delivered">Delivered</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Mulai</label>
+            <input type="date" id="summaryDateFrom" onchange="applyAdminSummaryFilters()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Akhir</label>
+            <input type="date" id="summaryDateTo" onchange="applyAdminSummaryFilters()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+    </div>
+    <!-- Tombol Reset Filter -->
+    <div class="flex justify-end mt-4">
+        <button onclick="resetAdminSummaryFilters()" class="text-blue-600 hover:text-blue-800 font-medium text-sm">
+            <i class="fas fa-refresh mr-1"></i>Reset Filter
+        </button>
+    </div>
+</div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="p-6 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900">Ringkasan Penjualan</h3>
+                    </div>
+                    <div id="adminSalesSummaryContent" class="p-6">
+                        <!-- Summary will be loaded here by JavaScript -->
                     </div>
                 </div>
             </div>
@@ -1020,36 +1082,62 @@
             }
         }
 
-        // Load vendor filters from active vendors in database for admin panels
-        async function loadAdminVendorFilters() {
+// Load vendor filters from active vendors in database for admin panels
+        // Takes an optional selectId to target different dropdowns
+        async function loadAdminVendorFilters(selectId = 'adminVendorFilter') {
             if (!supabaseClient) return;
-            
+
+            const select = document.getElementById(selectId);
+            if (!select) {
+                console.error(`Dropdown element with ID "${selectId}" not found.`);
+                return;
+            }
+            // 👇 MATA-MATA BARU #1 - Pastikan elemen select ditemukan 👇
+            console.log(`Element found for ${selectId}:`, select);
+
+            // Kosongkan opsi yang sudah ada (kecuali placeholder "Semua Vendor")
+            select.innerHTML = '<option value="">Semua Vendor</option>'; // Mulai dari awal
+
             try {
-                // Get unique vendor categories from active vendors
                 const { data: vendors, error } = await supabaseClient
                     .from('users')
                     .select('vendor_category')
                     .eq('role', 'vendor')
                     .not('vendor_category', 'is', null);
-                
+
                 if (error) throw error;
-                
-                // Get unique categories
+
                 const uniqueCategories = [...new Set(vendors.map(v => v.vendor_category).filter(Boolean))];
-                
-                console.log('Active vendor categories for Admin:', uniqueCategories);
-                
-                // Update admin filter dropdown
-                updateAdminVendorFilters(uniqueCategories);
-                
+                console.log(`Active vendor categories for ${selectId}:`, uniqueCategories);
+
+                // --- LOGIKA MENGGUNAKAN appendChild ---
+                uniqueCategories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = getVendorName(category); // Gunakan textContent lebih aman
+                    select.appendChild(option);
+                });
+                // --- AKHIR LOGIKA ---
+
+                // 👇 MATA-MATA BARU #2 - Periksa JUMLAH OPSI setelah loop 👇
+                console.log(`Number of options in ${selectId} after loop:`, select.options.length);
+                console.log(`InnerHTML of ${selectId} immediately after appending loop:`, select.innerHTML);
+
+                console.log(`Successfully appended options for ${selectId}.`);
+
             } catch (error) {
-                console.error('Error loading admin vendor filters:', error);
-                // Fallback to default categories if database fails
-                const defaultCategories = ['pin-kopi', 'satset-grill', 'ani-ksf'];
-                updateAdminVendorFilters(defaultCategories);
+                console.error(`>>> ERROR inside loadAdminVendorFilters for ${selectId}:`, error);
+                // Fallback:
+                const defaultCategories = ['pin-kopi', 'satset-grill', 'ani-ksf']; // Contoh default
+                defaultCategories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = getVendorName(category);
+                    select.appendChild(option);
+                });
+                console.log(`Fallback options appended for ${selectId} due to error.`);
             }
         }
-
         // Update shopping type filter dropdown
         function updateShoppingTypeFilters(types) {
             const select = document.getElementById('typeFilterSelect');
@@ -1413,6 +1501,9 @@
                 loadVendorsManagement();
             } else if (section === 'adminProducts') {
                 loadAdminProducts();
+            } else if (section === 'adminSalesSummary') {
+                loadAdminVendorFilters('summaryVendorFilter');
+                loadAdminSalesSummary();    
             }
         }
 
@@ -1882,6 +1973,126 @@
             } finally {
                 toggle.disabled = false; // Re-enable toggle
             }
+        }
+
+// Load and render Admin Sales Summary WITH FILTERS
+        function loadAdminSalesSummary() {
+            const summaryContainer = document.getElementById('adminSalesSummaryContent');
+            if (!summaryContainer) return;
+
+            // --- BAGIAN BARU: Baca Nilai Filter ---
+            const vendorFilter = document.getElementById('summaryVendorFilter')?.value || '';
+            const statusFilter = document.getElementById('summaryStatusFilter')?.value || '';
+            const dateFrom = document.getElementById('summaryDateFrom')?.value || '';
+            const dateTo = document.getElementById('summaryDateTo')?.value || '';
+            // --- AKHIR BAGIAN BARU ---
+
+            // Filter out cancelled orders FIRST (selalu, tidak peduli filter status)
+            let filteredOrders = orders.filter(order => order.status !== 'cancelled');
+
+            // --- BAGIAN BARU: Terapkan Filter Tambahan ---
+            // Filter by vendor
+            if (vendorFilter) {
+                filteredOrders = filteredOrders.filter(order => {
+                    const orderItems = order.items || [];
+                    return orderItems.some(item => item.category === vendorFilter);
+                });
+            }
+
+            // Filter by status (hanya pending, processing, delivered)
+            if (statusFilter) {
+                filteredOrders = filteredOrders.filter(order =>
+                    (order.status || 'pending') === statusFilter
+                );
+            }
+
+            // Filter by date range
+            if (dateFrom) {
+                const fromDate = new Date(dateFrom);
+                fromDate.setHours(0, 0, 0, 0);
+                filteredOrders = filteredOrders.filter(order =>
+                    new Date(order.created_at) >= fromDate
+                );
+            }
+
+            if (dateTo) {
+                const toDate = new Date(dateTo);
+                toDate.setHours(23, 59, 59, 999);
+                filteredOrders = filteredOrders.filter(order =>
+                    new Date(order.created_at) <= toDate
+                );
+            }
+            // --- AKHIR BAGIAN BARU ---
+
+
+            if (filteredOrders.length === 0) {
+                summaryContainer.innerHTML = `
+                    <div class="text-center text-gray-500 py-8">
+                        <i class="fas fa-filter text-4xl mb-4 text-gray-400"></i>
+                        <p>Tidak ada pesanan yang sesuai dengan filter yang dipilih.</p>
+                        <button onclick="resetAdminSummaryFilters()" class="mt-4 text-blue-600 hover:text-blue-800 font-medium">
+                            <i class="fas fa-refresh mr-2"></i>Reset Filter
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            const itemSummary = {};
+
+            // Aggregate item quantities from the filtered orders
+            filteredOrders.forEach(order => {
+                const orderItems = order.items || [];
+                orderItems.forEach(item => {
+                    if (!vendorFilter || item.category === vendorFilter) {
+                        const itemName = item.product_name || 'Produk Tidak Dikenal';
+                        if (itemSummary[itemName]) {
+                        itemSummary[itemName] += item.quantity || 1;
+                        } else {
+                            itemSummary[itemName] = item.quantity || 1;
+                        }
+                    }  
+                });
+            });
+
+            if (Object.keys(itemSummary).length === 0) {
+                 summaryContainer.innerHTML = `
+                    <div class="text-center text-gray-500 py-8">
+                        <i class="fas fa-box-open text-4xl mb-4 text-gray-400"></i>
+                        <p>Tidak ada item yang ditemukan dalam pesanan yang difilter.</p>
+                    </div>
+                 `;
+                 return;
+            }
+
+            const sortedItems = Object.entries(itemSummary).sort(([, a], [, b]) => b - a);
+
+            summaryContainer.innerHTML = `
+                <ul class="space-y-3 columns-1 md:columns-2 lg:columns-3">
+                    ${sortedItems.map(([name, quantity]) => `
+                        <li class="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span class="text-sm font-medium text-gray-900">${name}</span>
+                            <span class="text-sm font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md">x ${quantity}</span>
+                        </li>
+                    `).join('')}
+                </ul>
+            `;
+        }
+
+        // Apply admin SUMMARY filters
+        function applyAdminSummaryFilters() {
+            // Kita panggil ulang fungsi load summary agar ia membaca filter baru
+            loadAdminSalesSummary();
+        }
+
+        // Reset admin SUMMARY filters
+        function resetAdminSummaryFilters() {
+            document.getElementById('summaryVendorFilter').value = '';
+            document.getElementById('summaryStatusFilter').value = '';
+            document.getElementById('summaryDateFrom').value = '';
+            document.getElementById('summaryDateTo').value = '';
+            // Panggil ulang fungsi load summary setelah reset
+            loadAdminSalesSummary();
         }
 
         // Apply admin filters
@@ -4628,5 +4839,3 @@ async function checkout() {
     </script>
 </body>
 </html>
-
-
