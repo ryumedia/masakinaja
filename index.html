@@ -2332,6 +2332,14 @@
                                                 class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded hover:bg-blue-200 transition-colors">
                                             <i class="fas fa-play mr-1"></i>Proses
                                         </button>
+                                        ${
+                                            (order.payment_status === 'unpaid' || !order.payment_status) // Tampilkan hanya jika belum lunas
+                                            ? `<button onclick="updatePaymentStatusAdmin('${order.id}', 'paid')"
+                                                        class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded hover:bg-yellow-200 transition-colors">
+                                                    <i class="fas fa-money-check-alt mr-1"></i>Lunas
+                                                </button>`
+                                            : '' // Jangan tampilkan tombol jika sudah lunas
+                                        }
                                         <button onclick="updateOrderStatusAdmin('${order.id}', 'delivered')" 
                                                 class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded hover:bg-green-200 transition-colors">
                                             <i class="fas fa-check mr-1"></i>Selesai
@@ -3045,6 +3053,59 @@ async function checkout() {
             } catch (error) {
                 console.error('Error updating order status:', error);
                 showNotification('Gagal mengubah status pesanan: ' + error.message, 'error');
+            }
+        }
+
+        // Update PAYMENT status (for admin)
+        async function updatePaymentStatusAdmin(orderId, newStatus) {
+            if (!currentUser || currentUser.role !== 'admin') {
+                showNotification('Hanya admin yang dapat mengubah status pembayaran.', 'error');
+                return;
+            }
+            if (!supabaseClient) {
+                showNotification('Koneksi database tidak tersedia.', 'error');
+                return;
+            }
+
+            // Validasi status baru (saat ini hanya 'paid')
+            if (newStatus !== 'paid') {
+                 showNotification('Status pembayaran tidak valid.', 'error');
+                 return;
+            }
+
+            try {
+                // Find the order locally
+                const order = orders.find(o => o.id == orderId);
+                if (!order) {
+                    showNotification('Pesanan tidak ditemukan.', 'error');
+                    return;
+                }
+
+                // Jangan lakukan apa pun jika sudah lunas
+                if (order.payment_status === 'paid') {
+                    showNotification('Pesanan ini sudah lunas.', 'info');
+                    return;
+                }
+
+                // Update payment_status in Supabase database
+                const { error } = await supabaseClient
+                    .from('orders')
+                    .update({ payment_status: newStatus, updated_at: new Date().toISOString() })
+                    .eq('id', orderId);
+
+                if (error) throw error;
+
+                // Update local order data
+                order.payment_status = newStatus;
+
+                // Refresh the admin orders table to show the change
+                renderAdminOrders();
+
+                showNotification(`Status pembayaran untuk Pesanan #${orderId} berhasil diubah menjadi Lunas.`, 'success');
+
+            } catch (error) {
+                console.error('Error updating payment status:', error);
+                showNotification('Gagal mengubah status pembayaran: ' + error.message, 'error');
             }
         }
 
@@ -4839,3 +4900,4 @@ async function checkout() {
     </script>
 </body>
 </html>
+
