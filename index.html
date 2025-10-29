@@ -104,12 +104,14 @@
 
         <!-- Cart Section -->
         <section id="cartSection" class="section-content hidden">
+            <button onclick="showSection('shopping')" 
+                        class="fixed top-20 left-4 sm:left-6 lg:left-8 z-50 bg-yellow-400 w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:text-blue-600 hover:bg-yellow-300 transition-all transform hover:scale-110 focus:outline-none"
+                        title="Kembali ke Daftar Produk">
+                        <i class="fas fa-arrow-left text-xl"></i>
+            </button>
             <div class="max-w-4xl mx-auto">
-                <div class="flex items-center justify-between mb-8">
-                    <h2 class="text-3xl font-bold text-gray-900">Keranjang Belanja</h2>
-                    <button onclick="showSection('shopping')" class="text-blue-600 hover:text-blue-800 font-medium">
-                        <i class="fas fa-arrow-left mr-2"></i>Kembali Belanja
-                    </button>
+                <div class="flex items-center justify-end mb-8">
+                    <h2 class="text-lg font-bold text-gray-900">Keranjang Belanja</h2>
                 </div>
                 <div id="cartContent">
                     <!-- Cart items will be loaded here -->
@@ -119,12 +121,14 @@
 
         <!-- Customer Orders Section -->
         <section id="ordersSection" class="section-content hidden">
+            <button onclick="showSection('shopping')" 
+                        class="fixed top-20 left-4 sm:left-6 lg:left-8 z-50 bg-yellow-400 w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:text-blue-600 hover:bg-yellow-300 transition-all transform hover:scale-110 focus:outline-none"
+                        title="Kembali ke Daftar Produk">
+                        <i class="fas fa-arrow-left text-xl"></i>
+            </button>
             <div class="max-w-6xl mx-auto">
-                <div class="flex items-center justify-between mb-8">
-                    <h2 class="text-3xl font-bold text-gray-900">Riwayat Pesanan Saya</h2>
-                    <button onclick="showSection('shopping')" class="text-blue-600 hover:text-blue-800 font-medium">
-                        <i class="fas fa-arrow-left mr-2"></i>Kembali Belanja
-                    </button>
+                <div class="flex items-center justify-end mb-8">
+                    <h2 class="text-lg font-bold text-gray-900">Riwayat Pesanan Saya</h2>
                 </div>
                 <div id="customerOrdersContent">
                     <!-- Customer orders will be loaded here -->
@@ -134,11 +138,13 @@
 
         <!-- Product Detail Section -->
         <section id="productDetailSection" class="section-content hidden">
+            <!-- Floating Back Button -->
+            <button onclick="showSection('shopping')" 
+                    class="fixed top-20 left-4 sm:left-6 lg:left-8 z-50 bg-yellow-400 w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:text-blue-600 hover:bg-yellow-300 transition-all transform hover:scale-110 focus:outline-none"
+                    title="Kembali ke Daftar Produk">
+                <i class="fas fa-arrow-left text-xl"></i>
+            </button>
             <div class="max-w-4xl mx-auto">
-                <button onclick="showSection('shopping')" class="mb-6 text-blue-600 hover:text-blue-800 font-medium">
-                    <i class="fas fa-arrow-left mr-2"></i>Kembali ke Daftar Produk
-                </button>
-
                 <div id="productDetailContent" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden md:flex">
                     <!-- Product detail content will be loaded here by JavaScript -->
                     <div class="p-8 text-center text-gray-500">Memuat detail produk...</div>
@@ -149,7 +155,7 @@
         <!-- Vendor Section -->
         <section id="vendorSection" class="section-content hidden">
             <div class="mb-8">
-                <h2 class="text-3xl font-bold text-gray-900 mb-6">Panel Vendor - <span id="vendorCategoryName" class="text-blue-600"></span></h2>
+                <h2 class="text-lg font-bold text-gray-900 mb-6">Panel Vendor - <span id="vendorCategoryName" class="text-blue-600"></span></h2>
                 
                 <!-- Vendor Stats -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -250,7 +256,7 @@
             <div class="mb-8">
                 <div class="flex items-center justify-between mb-6">
                     <div>
-                        <h2 class="text-3xl font-bold text-gray-900">Kelola Produk - <span id="vendorProductsCategoryName" class="text-blue-600"></span></h2>
+                        <h2 class="text-lg font-bold text-gray-900">Kelola Produk - <span id="vendorProductsCategoryName" class="text-blue-600"></span></h2>
                         <p class="text-gray-600 mt-1">Kelola semua produk dalam kategori Anda</p>
                     </div>
                     <div class="flex space-x-3">
@@ -290,16 +296,16 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Tipe (Pilih) *</label>
                             <select id="productType" required
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
-        <option value="" disabled selected>Pilih Tipe Produk</option>
-        <option value="Frozen Food">Frozen Food</option>
-        <option value="Kudapan Manis">Kudapan Manis</option>
-        <option value="Kudapan Asin">Kudapan Asin</option>
-        <option value="Minuman & Salad">Minuman & Salad</option>
-<option value="Masakan">Masakan</option>
-<option value="Cemilan Kriuk">Cemilan Kriuk</option>
-<option value="Live Cooking">Live Cooking</option>
-    </select>
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                                <option value="" disabled selected>Pilih Tipe Produk</option>
+                                <option value="Frozen Food">Frozen Food</option>
+                                <option value="Kudapan Manis">Kudapan Manis</option>
+                                <option value="Kudapan Asin">Kudapan Asin</option>
+                                <option value="Minuman & Salad">Minuman & Salad</option>
+                                <option value="Masakan">Masakan</option>
+                                <option value="Cemilan Kriuk">Cemilan Kriuk</option>
+                                <option value="Live Cooking">Live Cooking</option>
+                            </select>
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
@@ -355,7 +361,7 @@
             <div class="mb-8">
                 <div class="flex items-center justify-between mb-6">
                     <div>
-                        <h2 class="text-3xl font-bold text-gray-900">Semua Produk</h2>
+                        <h2 class="text-lg font-bold text-gray-900">Semua Produk</h2>
                         <p class="text-gray-600 mt-1">Daftar semua produk dari seluruh vendor</p>
                     </div>
                     <button onclick="showSection('admin')" class="text-blue-600 hover:text-blue-800 font-medium">
@@ -440,7 +446,7 @@
             <div class="mb-8">
                 <div class="flex items-center justify-between mb-6">
                     <div>
-                        <h2 class="text-3xl font-bold text-gray-900">Kelola Vendor</h2>
+                        <h2 class="text-lg font-bold text-gray-900">Kelola Vendor</h2>
                         <p class="text-gray-600 mt-1">Kelola semua vendor yang terdaftar di platform</p>
                     </div>
                     <div class="flex space-x-3">
@@ -562,7 +568,7 @@
         <!-- Admin Section -->
         <section id="adminSection" class="section-content hidden">
             <div class="mb-8">
-                <h2 class="text-3xl font-bold text-gray-900 mb-6">Panel Admin</h2>
+                <h2 class="text-lg font-bold text-gray-900 mb-6">Panel Admin</h2>
                 
                 <!-- Shop Status Control -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
@@ -708,16 +714,16 @@
                 </div>
 
                 <!-- Filter Section for Sales Summary -->
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-    <h3 class="text-lg font-semibold text-gray-900 mb-4">Filter Rekapitulasi</h3>
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Filter Vendor</label>
-            <select id="summaryVendorFilter" onchange="applyAdminSummaryFilters()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Filter Rekapitulasi</h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Filter Vendor</label>
+                <select id="summaryVendorFilter" onchange="applyAdminSummaryFilters()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 <option value="">Semua Vendor</option>
                 <!-- Options will be loaded dynamically -->
-            </select>
-        </div>
+                </select>
+            </div>
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Status Pesanan</label>
             <select id="summaryStatusFilter" onchange="applyAdminSummaryFilters()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
@@ -2562,17 +2568,14 @@ grid.innerHTML = filteredProducts.map(product => `
                     <span class="text-xs text-gray-500">Stok: ${product.stock || 0}</span>
                 </div>
                 <h3 class="font-semibold text-gray-900 text-sm sm:text-base mb-1 line-clamp-2">${product.name}</h3>
-                <p class="text-gray-500 text-xs mb-2">${product.description || ''}</p>
+                <p class="text-gray-500 text-xs mb-2 line-clamp-1">${product.description || ''}</p>
+                <div class="text-xs text-blue-600 hover:text-blue-800 font-medium mt-1">
+                    Selengkapnya &gt;&gt;
+                </div>
             </div>
             
             <div class="mt-auto pt-2">
                  <span class="text-lg sm:text-xl font-bold text-blue-600 block mb-2">Rp ${formatPrice(product.price || 0)}</span>
-                <button onclick="addToCart(${product.id})" 
-                        class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-2 rounded-lg font-medium text-xs sm:text-sm hover:from-blue-600 hover:to-purple-700 transition-all transform hover:scale-105 ${(product.stock || 0) === 0 ? 'opacity-50 cursor-not-allowed' : ''}"
-                        ${(product.stock || 0) === 0 ? 'disabled' : ''}>
-                    <i class="fas fa-cart-plus mr-1 sm:mr-2"></i>
-                    ${(product.stock || 0) === 0 ? 'Habis' : 'Tambah'}
-                </button>
             </div>
         </div>
     </div>
@@ -2604,10 +2607,10 @@ grid.innerHTML = filteredProducts.map(product => `
                             ${product.type}
                         </span>
                     </div>
-                    <h2 class="text-3xl font-bold text-gray-900 mb-3">${product.name}</h2>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-3">${product.name}</h2>
                     <p class="text-gray-600 mb-4">${product.description || 'Tidak ada deskripsi.'}</p>
                     <div class="flex items-center justify-between mb-6">
-                        <span class="text-3xl font-bold text-blue-600">Rp ${formatPrice(product.price || 0)}</span>
+                        <span class="text-2xl font-bold text-blue-600">Rp ${formatPrice(product.price || 0)}</span>
                         <span class="text-sm font-medium ${
                             (product.stock || 0) > 10 ? 'text-green-600' :
                             (product.stock || 0) > 0 ? 'text-yellow-600' :
