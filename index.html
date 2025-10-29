@@ -36,22 +36,22 @@
             <div class="flex justify-between items-center h-16">
                 <!-- Left Section: Logo, Title, and Role Icons -->
                 <div class="flex items-center space-x-1 sm:space-x-2">
-                    <button onclick="showSection('shopping')" class="flex items-center space-x-4">
+                    <button onclick="showSection('shopping')" class="flex items-center space-x-2">
                         <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                             <i class="fas fa-store text-white text-sm"></i>
                         </div>
                         <h1 class="text-sm font-bold text-gray-900">Warung Masakin</h1>
                     </button>
                     <!-- Admin & Vendor Icons -->
-                    <button onclick="showSection('admin')" id="adminNav" class="nav-btn text-gray-600 hover:text-blue-600 w-10 h-10 flex items-center justify-center rounded-full hidden transition-colors" title="Panel Admin">
+                    <button onclick="showSection('admin')" id="adminNav" class="nav-btn text-gray-600 hover:text-blue-600 w-10 h-10 flex items-center 				justify-center rounded-full hidden transition-colors" title="Panel Admin">
                         <i class="fas fa-cog text-xl"></i>
                     </button>
-                    <button onclick="showSection('vendor')" id="vendorNav" class="nav-btn text-gray-600 hover:text-blue-600 w-10 h-10 flex items-center justify-center rounded-full hidden transition-colors" title="Panel Vendor">
+                    <button onclick="showSection('vendor')" id="vendorNav" class="nav-btn text-gray-600 hover:text-blue-600 w-10 h-10 flex items-center 			justify-center rounded-full hidden transition-colors" title="Panel Vendor">
                         <i class="fas fa-store text-xl"></i>
                     </button>
                 </div>
 
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2">
                     <div id="authSection">
                         <div id="loginSection">
                             <button onclick="showAuthModal('login')" class="text-gray-600 hover:text-gray-900 mr-4">
@@ -61,7 +61,11 @@
                                 <i class="fas fa-user-plus mr-2"></i>Daftar
                             </button>
                         </div>
-                        <div id="userSection" class="hidden flex items-center space-x-4">
+                        <div id="userSection" class="hidden flex items-center space-x-1">
+                            <button onclick="showSection('favorites')" class="relative p-2 text-gray-600 hover:text-gray-900" title="Produk Favorit">
+                                <i class="fas fa-heart text-xl"></i>
+                                <span id="favoriteBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+                            </button>
                             <button onclick="showSection('cart')" class="relative p-2 text-gray-600 hover:text-gray-900" title="Keranjang Belanja">
                                 <i class="fas fa-shopping-cart text-xl"></i>
                                 <span id="cartBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
@@ -69,7 +73,7 @@
                             <button onclick="showSection('orders')" class="p-2 text-gray-600 hover:text-gray-900" title="Riwayat Pesanan">
                                 <i class="fas fa-receipt text-xl"></i>
                             </button>
-                            <div class="flex items-center space-x-2">
+                            <div class="flex items-center space-x-1">
                                 <span id="userName" class="text-sm gray-700 font-medium"></span>
                                 <button onclick="logout()" class="text-gray-600 hover:text-red-600 transition-colors" title="Logout">
                                     <i class="fas fa-sign-out-alt"></i>
@@ -132,6 +136,24 @@
                 </div>
                 <div id="customerOrdersContent">
                     <!-- Customer orders will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Favorites Section -->
+        <section id="favoritesSection" class="section-content hidden">
+            <!-- Floating Back Button -->
+            <button onclick="showSection('shopping')"
+                    class="fixed top-20 left-4 sm:left-6 lg:left-8 z-50 bg-yellow-400 w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:text-blue-600 hover:bg-yellow-300 transition-all transform hover:scale-110 focus:outline-none"
+                    title="Kembali ke Daftar Produk">
+                <i class="fas fa-arrow-left text-xl"></i>
+            </button>
+            <div class="max-w-6xl mx-auto">
+                <div class="flex items-center justify-end mb-8">
+                    <h2 class="text-lg font-bold text-gray-900">Produk Favorit</h2>
+                </div>
+                <div id="favoritesContent" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <!-- Favorite products will be loaded here -->
                 </div>
             </div>
         </section>
@@ -859,6 +881,7 @@
         let isScrollToTopEnabled = true;
         let supabaseClient = null;
         let shopStatus = 'open';
+        let userFavorites = [];
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', async function() { // Menjadi async
@@ -951,6 +974,8 @@
                     
                     console.log('Pengguna dipulihkan dari sesi:', currentUser);
                     updateUIForUser();
+                    await loadUserFavorites();
+                    updateFavoriteBadge();
                 } else {
                     console.log('Tidak ada sesi aktif saat memuat halaman.');
                 }
@@ -1102,7 +1127,125 @@
             }
         }
 
-// Load vendor filters from active vendors in database for admin panels
+        // Load user's favorite products
+        async function loadUserFavorites() {
+            if (!currentUser || !supabaseClient) {
+                userFavorites = []; // Kosongkan jika tidak ada user
+                return;
+            }
+            try {
+                const { data, error } = await supabaseClient
+                    .from('user_favorites')
+                    .select('product_id') // Hanya ambil ID produk
+                    .eq('user_id', currentUser.id);
+
+                if (error) throw error;
+
+                // Simpan hanya array ID produk
+                userFavorites = data ? data.map(fav => fav.product_id) : [];
+                console.log('Favorit pengguna dimuat:', userFavorites);
+                updateFavoriteBadge();
+
+                // Re-render product detail if it's currently visible
+                // to update the favorite button state immediately
+                if (!document.getElementById('productDetailSection').classList.contains('hidden')) {
+                    const currentProductId = document.getElementById('productDetailContent')?.dataset.productId;
+                    if (currentProductId) {
+                         showProductDetail(currentProductId); // Re-render detail
+                    }
+                }
+
+            } catch (error) {
+                console.error('Gagal memuat favorit pengguna:', error);
+                userFavorites = []; // Kosongkan jika error
+            }
+        }
+
+        // Toggle favorite status for a product
+        async function toggleFavorite(productId) {
+            if (!currentUser) {
+                showAuthModal('login'); // Minta login jika belum
+                return;
+            }
+            if (!supabaseClient) {
+                showNotification('Koneksi database tidak tersedia.', 'error');
+                return;
+            }
+
+            const isCurrentlyFavorite = userFavorites.includes(productId);
+            const favButton = document.getElementById(`favBtn-${productId}`);
+            const favIcon = favButton ? favButton.querySelector('i') : null;
+
+            // Optimistic UI update (ubah ikon segera)
+            if (favIcon) {
+                favIcon.className = isCurrentlyFavorite
+                    ? 'far fa-heart text-3xl text-gray-400 animate-ping' // Efek ping saat menghapus
+                    : 'fas fa-heart text-3xl text-red-500 animate-ping'; // Efek ping saat menambah
+            }
+            if(favButton) favButton.disabled = true; // Nonaktifkan tombol sementara
+
+            try {
+                if (isCurrentlyFavorite) {
+                    // --- HAPUS DARI FAVORIT ---
+                    const { error } = await supabaseClient
+                        .from('user_favorites')
+                        .delete()
+                        .match({ user_id: currentUser.id, product_id: productId });
+
+                    if (error) throw error;
+
+                    // Update local state
+                    userFavorites = userFavorites.filter(id => id !== productId);
+                    if(favIcon) favIcon.className = 'far fa-heart text-3xl text-gray-400'; // Ikon kosong
+                    if(favButton) favButton.title = 'Tambahkan ke Favorit';
+                    showNotification('Dihapus dari favorit', 'success');
+                    updateFavoriteBadge();
+
+                } else {
+                    // --- TAMBAHKAN KE FAVORIT ---
+                    const { error } = await supabaseClient
+                        .from('user_favorites')
+                        .insert({ user_id: currentUser.id, product_id: productId });
+
+                     if (error) {
+                        // Handle potential unique constraint violation (sudah difavoritkan di tab lain?)
+                        if (error.code === '23505') { // Kode error duplicate key
+                             console.warn('Produk sudah ada di favorit (kemungkinan race condition). Memuat ulang favorit.');
+                             await loadUserFavorites(); // Sinkronkan ulang
+                             if(favIcon) favIcon.className = 'fas fa-heart text-3xl text-red-500';
+                             if(favButton) favButton.title = 'Hapus dari Favorit';
+                             showNotification('Sudah ada di favorit', 'info');
+                             updateFavoriteBadge();
+                        } else {
+                            throw error; // Lemparkan error lain
+                        }
+                    } else {
+                        // Update local state
+                        userFavorites.push(productId);
+                        if(favIcon) favIcon.className = 'fas fa-heart text-3xl text-red-500'; // Ikon penuh merah
+                        if(favButton) favButton.title = 'Hapus dari Favorit';
+                        showNotification('Ditambahkan ke favorit!', 'success');
+                        updateFavoriteBadge();
+                    }
+                }
+                console.log('Favorit diperbarui:', userFavorites);
+
+            } catch (error) {
+                console.error('Gagal mengubah favorit:', error);
+                showNotification('Gagal mengubah favorit: ' + error.message, 'error');
+                // Revert UI jika gagal
+                if (favIcon) {
+                     favIcon.className = userFavorites.includes(productId) ? 'fas fa-heart text-red-500' : 'far fa-heart text-3xl';
+                }
+                 if(favButton) favButton.title = userFavorites.includes(productId) ? 'Hapus dari Favorit' : 'Tambahkan ke Favorit';
+            } finally {
+                 if(favButton) favButton.disabled = false; // Aktifkan kembali tombol
+                 // Hapus efek ping setelah selesai
+                 if(favIcon) favIcon.classList.remove('animate-ping');
+            }
+        }
+
+        // Load vendor filters from active vendors in database for admin panels
         // Takes an optional selectId to target different dropdowns
         async function loadAdminVendorFilters(selectId = 'adminVendorFilter') {
             if (!supabaseClient) return;
@@ -1296,6 +1439,8 @@
                 }
                 
                 updateUIForUser();
+                await loadUserFavorites();
+                updateFavoriteBadge();
                 hideAuthModal();
                 showNotification('Login berhasil!', 'success');
                 
@@ -1458,6 +1603,8 @@
         function logout() {
             currentUser = null;
             cart = [];
+            userFavorites = [];
+            updateFavoriteBadge();
             localStorage.removeItem('masakinAjaCart');
             
             document.getElementById('loginSection').classList.remove('hidden');
@@ -1526,7 +1673,10 @@
                 loadAdminSalesSummary();
             } else if (section === 'productDetail') {
                 // Tidak perlu load data khusus di sini, sudah ditangani showProductDetail()
-                document.getElementById('productDetailSection').classList.remove('hidden');    
+                document.getElementById('productDetailSection').classList.remove('hidden');   
+            } else if (section === 'favorites') {
+                renderFavorites(); // Panggil fungsi render
+                document.getElementById('favoritesSection').classList.remove('hidden'); 
             }
         }
 
@@ -2585,6 +2735,7 @@ grid.innerHTML = filteredProducts.map(product => `
         // Show Product Detail Page
         function showProductDetail(productId) {
             const detailContainer = document.getElementById('productDetailContent');
+            detailContainer.dataset.productId = productId;
             const product = products.find(p => p.id == productId);
 
             if (!product) {
@@ -2619,14 +2770,19 @@ grid.innerHTML = filteredProducts.map(product => `
                             Stok: ${product.stock || 0}
                         </span>
                     </div>
-                    <div class="mt-auto">
+                    <div class="mt-auto flex space-x-3">
                         <button onclick="addToCart(${product.id})"
-                                class="w-full bg-gradient-to-r from-green-500 to-blue-600 text-white py-3 rounded-lg font-medium hover:from-green-600 hover:to-blue-700 transition-all transform hover:scale-105 ${
+                                class="flex-1 bg-gradient-to-r from-green-500 to-blue-600 text-white py-3 rounded-lg font-medium hover:from-green-600 hover:to-blue-700 transition-all transform hover:scale-105 ${
                                     (product.stock || 0) === 0 ? 'opacity-50 cursor-not-allowed' : ''
                                 }"
                                 ${ (product.stock || 0) === 0 ? 'disabled' : '' }>
                             <i class="fas fa-cart-plus mr-2"></i>
-                            ${ (product.stock || 0) === 0 ? 'Stok Habis' : 'Tambah ke Keranjang' }
+                            ${ (product.stock || 0) === 0 ? 'Stok Habis' : 'Tambah' } <!-- Diringkas -->
+                        </button>
+                        <button id="favBtn-${product.id}" onclick="toggleFavorite(${product.id})"
+                                class="w-14 h-14 border border-gray-300 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-100 transition-colors"
+                                title="Tambahkan ke Favorit">
+                            <i class="${ userFavorites.includes(product.id) ? 'fas fa-heart text-red-500' : 'far fa-heart' } text-3xl"></i>
                         </button>
                     </div>
                 </div>
@@ -2681,6 +2837,131 @@ grid.innerHTML = filteredProducts.map(product => `
             } else {
                 badge.classList.add('hidden');
             }
+        }
+
+        // Update favorite badge
+        function updateFavoriteBadge() {
+            const badge = document.getElementById('favoriteBadge');
+            if (!badge) return; // Pastikan elemen ada
+
+            const totalItems = userFavorites.length;
+
+            if (totalItems > 0 && currentUser) { // Tampilkan hanya jika ada item DAN user login
+                badge.textContent = totalItems;
+                badge.classList.remove('hidden');
+                // Anda bisa menambahkan animasi jika mau, mirip cart-badge
+                // badge.classList.add('fav-badge-animation');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        // Render Favorite Products (with status checks)
+        function renderFavorites() {
+            const container = document.getElementById('favoritesContent');
+            if (!container) return;
+
+            // --- PERUBAHAN #1: Periksa Status Toko ---
+            if (shopStatus === 'closed') {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-16">
+                        <div class="bg-red-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-door-closed text-red-500 text-3xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">Warung Sedang Tutup</h3>
+                        <p class="text-gray-600 max-w-md mx-auto">
+                            Mohon maaf, saat ini kami sedang tidak menerima pesanan. Silakan kembali lagi nanti.
+                        </p>
+                    </div>
+                `;
+                return; // Hentikan fungsi jika toko tutup
+            }
+            // --- AKHIR PERUBAHAN #1 ---
+
+            if (!currentUser) {
+                // Tampilkan pesan jika belum login
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-16">
+                         <div class="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-heart-crack text-gray-400 text-3xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">Login untuk Melihat Favorit</h3>
+                        <p class="text-gray-600 mb-6 max-w-md mx-auto">
+                            Simpan produk kesukaan Anda di sini agar mudah ditemukan kembali.
+                        </p>
+                        <button onclick="showAuthModal('login')" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors transform hover:scale-105">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Login Sekarang
+                        </button>
+                    </div>`;
+                return;
+            }
+
+            // --- PERUBAHAN #2: Filter Produk yang Aktif ---
+            const favoriteProducts = products.filter(p =>
+                userFavorites.includes(p.id) && // Cek apakah ID ada di favorit
+                (p.status === 'active' || p.status == null) // DAN cek apakah statusnya aktif (atau null)
+            );
+            // --- AKHIR PERUBAHAN #2 ---
+
+            if (favoriteProducts.length === 0) {
+                // Cek apakah user punya favorit tapi produknya nonaktif/dihapus
+                const hadFavoritesButInactive = userFavorites.length > 0;
+
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-16">
+                        <div class="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="far fa-heart text-gray-400 text-3xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">
+                            ${hadFavoritesButInactive ? 'Produk Favorit Tidak Tersedia' : 'Belum Ada Produk Favorit'}
+                        </h3>
+                        <p class="text-gray-600 mb-6 max-w-md mx-auto">
+                            ${hadFavoritesButInactive ? 'Produk yang Anda favoritkan mungkin sudah tidak aktif atau dihapus.' : 'Tekan ikon hati pada produk yang Anda sukai untuk menyimpannya di sini.'}
+                        </p>
+                        <button onclick="showSection('shopping')" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors transform hover:scale-105">
+                            <i class="fas fa-shopping-bag mr-2"></i>Mulai Belanja
+                        </button>
+                    </div>`;
+                return;
+            }
+
+            // Gunakan struktur kartu yang sama seperti renderProducts,
+            // tapi tambahkan tombol hapus favorit di dalam kartu
+            container.innerHTML = favoriteProducts.map(product => `
+                <div class="vendor-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col relative">
+                    <!-- Tombol Hapus Favorit di Pojok Kartu -->
+                    <button onclick="toggleFavorite(${product.id})"
+                            class="absolute top-2 right-2 z-10 w-8 h-8 bg-white bg-opacity-80 rounded-full flex items-center justify-center text-red-500 hover:bg-red-100 transition-colors"
+                            title="Hapus dari Favorit">
+                        <i class="fas fa-heart text-lg"></i>
+                    </button>
+
+                    <div class="aspect-w-16 aspect-h-12 bg-gray-200 cursor-pointer" onclick="showProductDetail(${product.id})">
+                        <img src="${product.image_url || 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZLYhhcn24Ldg-Oi9fPz47a-r_IVHV2tbr1VhFXs424_MkjJfgrSIZyVmddxmyZ5PaUAT4gxPPXe_uH5DziW2rsJnIlTycyAAYrMrAz588ytSsbqyHfDVI3xvlXwpQfCaZqmNcFnecApQIapC2jGVcDQgDp01G_8fPvVV397vxuOU_Ge8aDKHupI4Yo1I/s500/Masakin%20aja.png'}"
+                             alt="${product.name}"
+                             class="w-full h-32 sm:h-48 object-cover"
+                             onerror="this.src='https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZLYhhcn24Ldg-Oi9fPz47a-r_IVHV2tbr1VhFXs424_MkjJfgrSIZyVmddxmyZ5PaUAT4gxPPXe_uH5DziW2rsJnIlTycyAAYrMrAz588ytSsbqyHfDVI3xvlXwpQfCaZqmNcFnecApQIapC2jGVcDQgDp01G_8fPvVV397vxuOU_Ge8aDKHupI4Yo1I/s500/Masakin%20aja.png'">
+                    </div>
+                    <div class="p-3 sm:p-4 flex flex-col flex-grow">
+                        <div class="cursor-pointer" onclick="showProductDetail(${product.id})">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="px-2 py-0.5 bg-green-100 text-green-800 rounded-full text-[8px] font-medium">
+                                     ${product.type ? (product.type.charAt(0).toUpperCase() + product.type.slice(1)) : 'Umum'}
+                                </span>
+                                <span class="text-xs text-gray-500">Stok: ${product.stock || 0}</span>
+                            </div>
+                            <h3 class="font-semibold text-gray-900 text-sm sm:text-base mb-1 line-clamp-2">${product.name}</h3>
+                            <p class="text-gray-500 text-xs mb-2 line-clamp-1">${product.description || ''}</p>
+                            <div class="text-xs text-blue-600 hover:text-blue-800 font-medium mt-1">
+                                Selengkapnya &gt;&gt;
+                            </div>
+                        </div>
+                        <div class="mt-auto pt-2">
+                             <span class="text-lg sm:text-xl font-bold text-blue-600 block mb-2 cursor-pointer" onclick="showProductDetail(${product.id})">Rp ${formatPrice(product.price || 0)}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
         }
 
         // Render cart
