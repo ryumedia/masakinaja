@@ -132,6 +132,20 @@
             </div>
         </section>
 
+        <!-- Product Detail Section -->
+        <section id="productDetailSection" class="section-content hidden">
+            <div class="max-w-4xl mx-auto">
+                <button onclick="showSection('shopping')" class="mb-6 text-blue-600 hover:text-blue-800 font-medium">
+                    <i class="fas fa-arrow-left mr-2"></i>Kembali ke Daftar Produk
+                </button>
+
+                <div id="productDetailContent" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden md:flex">
+                    <!-- Product detail content will be loaded here by JavaScript -->
+                    <div class="p-8 text-center text-gray-500">Memuat detail produk...</div>
+                </div>
+            </div>
+        </section>
+
         <!-- Vendor Section -->
         <section id="vendorSection" class="section-content hidden">
             <div class="mb-8">
@@ -1503,7 +1517,10 @@
                 loadAdminProducts();
             } else if (section === 'adminSalesSummary') {
                 loadAdminVendorFilters('summaryVendorFilter');
-                loadAdminSalesSummary();    
+                loadAdminSalesSummary();
+            } else if (section === 'productDetail') {
+                // Tidak perlu load data khusus di sini, sudah ditangani showProductDetail()
+                document.getElementById('productDetailSection').classList.remove('hidden');    
             }
         }
 
@@ -2529,7 +2546,7 @@ if (filteredProducts.length === 0) {
             
             // Render products
 grid.innerHTML = filteredProducts.map(product => `
-    <div class="vendor-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+    <div class="vendor-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col cursor-pointer" onclick="showProductDetail(${product.id})">
         <div class="aspect-w-16 aspect-h-12 bg-gray-200">
             <img src="${product.image_url || 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZLYhhcn24Ldg-Oi9fPz47a-r_IVHV2tbr1VhFXs424_MkjJfgrSIZyVmddxmyZ5PaUAT4gxPPXe_uH5DziW2rsJnIlTycyAAYrMrAz588ytSsbqyHfDVI3xvlXwpQfCaZqmNcFnecApQIapC2jGVcDQgDp01G_8fPvVV397vxuOU_Ge8aDKHupI4Yo1I/s500/Masakin%20aja.png'}" 
                  alt="${product.name}" 
@@ -2560,6 +2577,60 @@ grid.innerHTML = filteredProducts.map(product => `
         </div>
     </div>
 `).join('');
+        }
+
+        // Show Product Detail Page
+        function showProductDetail(productId) {
+            const detailContainer = document.getElementById('productDetailContent');
+            const product = products.find(p => p.id == productId);
+
+            if (!product) {
+                detailContainer.innerHTML = '<div class="p-8 text-center text-red-600">Produk tidak ditemukan.</div>';
+                showSection('productDetail');
+                return;
+            }
+
+            // Generate HTML for product details
+            detailContainer.innerHTML = `
+                <div class="md:w-1/2 p-6 bg-gray-100 flex items-center justify-center">
+                    <img src="${product.image_url || 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZLYhhcn24Ldg-Oi9fPz47a-r_IVHV2tbr1VhFXs424_MkjJfgrSIZyVmddxmyZ5PaUAT4gxPPXe_uH5DziW2rsJnIlTycyAAYrMrAz588ytSsbqyHfDVI3xvlXwpQfCaZqmNcFnecApQIapC2jGVcDQgDp01G_8fPvVV397vxuOU_Ge8aDKHupI4Yo1I/s500/Masakin%20aja.png'}"
+                         alt="${product.name}"
+                         class="max-w-full h-auto max-h-80 object-contain rounded-lg shadow-md"
+                         onerror="this.src='https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZLYhhcn24Ldg-Oi9fPz47a-r_IVHV2tbr1VhFXs424_MkjJfgrSIZyVmddxmyZ5PaUAT4gxPPXe_uH5DziW2rsJnIlTycyAAYrMrAz588ytSsbqyHfDVI3xvlXwpQfCaZqmNcFnecApQIapC2jGVcDQgDp01G_8fPvVV397vxuOU_Ge8aDKHupI4Yo1I/s500/Masakin%20aja.png'">
+                </div>
+                <div class="md:w-1/2 p-6 flex flex-col">
+                    <div class="mb-4">
+                        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                            ${product.type}
+                        </span>
+                    </div>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-3">${product.name}</h2>
+                    <p class="text-gray-600 mb-4">${product.description || 'Tidak ada deskripsi.'}</p>
+                    <div class="flex items-center justify-between mb-6">
+                        <span class="text-3xl font-bold text-blue-600">Rp ${formatPrice(product.price || 0)}</span>
+                        <span class="text-sm font-medium ${
+                            (product.stock || 0) > 10 ? 'text-green-600' :
+                            (product.stock || 0) > 0 ? 'text-yellow-600' :
+                            'text-red-600'
+                        }">
+                            Stok: ${product.stock || 0}
+                        </span>
+                    </div>
+                    <div class="mt-auto">
+                        <button onclick="addToCart(${product.id})"
+                                class="w-full bg-gradient-to-r from-green-500 to-blue-600 text-white py-3 rounded-lg font-medium hover:from-green-600 hover:to-blue-700 transition-all transform hover:scale-105 ${
+                                    (product.stock || 0) === 0 ? 'opacity-50 cursor-not-allowed' : ''
+                                }"
+                                ${ (product.stock || 0) === 0 ? 'disabled' : '' }>
+                            <i class="fas fa-cart-plus mr-2"></i>
+                            ${ (product.stock || 0) === 0 ? 'Stok Habis' : 'Tambah ke Keranjang' }
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Tampilkan section detail produk
+            showSection('productDetail');
         }
 
         // Add to cart
