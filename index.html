@@ -43,10 +43,10 @@
                         <h1 class="text-sm font-bold text-gray-900">Warung Masakin</h1>
                     </button>
                     <!-- Admin & Vendor Icons -->
-                    <button onclick="showSection('admin')" id="adminNav" class="nav-btn text-gray-600 hover:text-blue-600 w-10 h-10 flex items-center 				justify-center rounded-full hidden transition-colors" title="Panel Admin">
+                    <button onclick="showSection('admin')" id="adminNav" class="nav-btn text-gray-600 hover:text-blue-600 w-10 h-10 flex items-center justify-center rounded-full hidden transition-colors" title="Panel Admin">
                         <i class="fas fa-cog text-xl"></i>
                     </button>
-                    <button onclick="showSection('vendor')" id="vendorNav" class="nav-btn text-gray-600 hover:text-blue-600 w-10 h-10 flex items-center 			justify-center rounded-full hidden transition-colors" title="Panel Vendor">
+                    <button onclick="showSection('vendor')" id="vendorNav" class="nav-btn text-gray-600 hover:text-blue-600 w-10 h-10 flex items-center justify-center rounded-full hidden transition-colors" title="Panel Vendor">
                         <i class="fas fa-store text-xl"></i>
                     </button>
                 </div>
@@ -62,21 +62,25 @@
                             </button>
                         </div>
                         <div id="userSection" class="hidden flex items-center space-x-1">
-                            <button onclick="showSection('favorites')" class="relative p-2 text-gray-600 hover:text-gray-900" title="Produk Favorit">
+                            <button onclick="showSection('favorites')" id="favoritesNav" class="nav-btn relative p-2 text-gray-600 hover:text-red-600 rounded-full w-10 h-10 flex items-center justify-center transition-colors" title="Produk Favorit">
                                 <i class="fas fa-heart text-xl"></i>
                                 <span id="favoriteBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
                             </button>
-                            <button onclick="showSection('cart')" class="relative p-2 text-gray-600 hover:text-gray-900" title="Keranjang Belanja">
+                            <button onclick="showSection('cart')" id="cartNav" class="nav-btn relative p-2 text-gray-600 hover:text-yellow-600 rounded-full w-10 h-10 flex items-center justify-center transition-colors" title="Keranjang Belanja">
                                 <i class="fas fa-shopping-cart text-xl"></i>
                                 <span id="cartBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
                             </button>
-                            <button onclick="showSection('orders')" class="p-2 text-gray-600 hover:text-gray-900" title="Riwayat Pesanan">
+                            <button onclick="showSection('orders')" id="ordersNav" class="nav-btn p-2 text-gray-600 hover:text-purple-600 rounded-full w-10 h-10 flex items-center justify-center transition-colors" title="Riwayat Pesanan">
                                 <i class="fas fa-receipt text-xl"></i>
                             </button>
                             <div class="flex items-center space-x-1">
-                                <span id="userName" class="text-sm gray-700 font-medium"></span>
-                                <button onclick="logout()" class="text-gray-600 hover:text-red-600 transition-colors" title="Logout">
-                                    <i class="fas fa-sign-out-alt"></i>
+                                <!-- Tombol Ikon Profil Baru -->
+                                <button id="userProfileNav" onclick="showSection('userProfile')" class="nav-btn p-2 text-gray-600 hover:text-green-600 rounded-full w-10 h-10 flex items-center justify-center transition-colors" title="Profil Saya">
+                                    <i class="fas fa-user text-xl"></i>
+                                </button>
+                                <!-- Tombol Logout (Style disamakan) -->
+                                <button onclick="logout()" class="nav-btn p-2 text-gray-600 hover:text-red-600 rounded-full w-10 h-10 flex items-center justify-center transition-colors" title="Logout">
+                                    <i class="fas fa-sign-out-alt text-xl"></i>
                                 </button>
                             </div>
                         </div>
@@ -154,6 +158,25 @@
                 </div>
                 <div id="favoritesContent" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     <!-- Favorite products will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- User Profile Section -->
+        <section id="userProfileSection" class="section-content hidden relative pt-16">
+            <!-- Floating Back Button -->
+            <button onclick="showSection('shopping')"
+                    class="fixed top-20 left-4 sm:left-6 lg:left-8 z-50 bg-yellow-400 w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:text-blue-600 hover:bg-yellow-300 transition-all transform hover:scale-110 focus:outline-none"
+                    title="Kembali ke Daftar Produk">
+                <i class="fas fa-arrow-left text-xl"></i>
+            </button>
+            <div class="max-w-2xl mx-auto">
+                <div class="flex items-center justify-end mb-8">
+                    <h2 class="text-lg font-bold text-gray-900">Profil Saya</h2>
+                </div>
+                <div id="userProfileContent">
+                    <!-- Profile content will be loaded here by JavaScript -->
+                    <div class="text-center p-8 text-gray-500">Memuat profil...</div>
                 </div>
             </div>
         </section>
@@ -968,7 +991,8 @@
                             name: profile.full_name || profile.name,
                             role: profile.role,
                             vendor_category: profile.vendor_category,
-                            phone_number: profile.phone_number
+                            phone_number: profile.phone_number,
+                            photo_url: profile.photo_url
                         };
                     }
                     
@@ -1434,7 +1458,8 @@
                         name: profile.full_name || profile.name || email.split('@')[0],
                         role: profile.role || 'customer',
                         vendor_category: profile.vendor_category,
-                        phone_number: profile.phone_number
+                        phone_number: profile.phone_number,
+                        photo_url: profile.photo_url
                     };
                 }
                 
@@ -1588,7 +1613,10 @@
         function updateUIForUser() {
             document.getElementById('loginSection').classList.add('hidden');
             document.getElementById('userSection').classList.remove('hidden');
-            document.getElementById('userName').textContent = `${currentUser.name}`;
+            const userProfileBtn = document.getElementById('userProfileBtn');
+            if (userProfileBtn) {
+                userProfileBtn.title = `Profil: ${currentUser.name}`;
+            }
             
             if (currentUser.role === 'admin') {
                 document.getElementById('adminNav').classList.remove('hidden');
@@ -1632,7 +1660,14 @@
             
             // Update navigation
             document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600', 'bg-blue-50');
+                btn.classList.remove(
+                    'text-blue-600', 'bg-blue-50', 
+                    'text-red-600', 'bg-red-50', 
+                    'text-yellow-600', 'bg-yellow-50', 
+                    'text-purple-600', 'bg-purple-50',
+                    'text-green-600', 'bg-green-50',
+                    'border-b-2', 'border-blue-600'
+                );
                 btn.classList.add('text-gray-600');
             });
             
@@ -1644,13 +1679,35 @@
                 const navButton = document.getElementById(section + 'Nav');
                 navButton.classList.remove('text-gray-600');
                 
-                // For icon buttons (admin/vendor), apply a background color for active state
-                if (section === 'admin' || section === 'vendor') {
-                    navButton.classList.add('text-blue-600', 'bg-blue-50');
-                } else {
-                    // Fallback for any future text-based nav buttons
-                    navButton.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+            // Apply active state styles based on the section
+                switch (section) {
+                    case 'admin':
+                    case 'vendor':
+                        // Biru untuk Admin & Vendor
+                        navButton.classList.add('text-blue-600', 'bg-blue-50');
+                        break;
+                    case 'favorites':
+                        // Merah untuk Favorit
+                        navButton.classList.add('text-red-600', 'bg-red-50');
+                        break;
+                    case 'cart':
+                        // Kuning/Oranye untuk Keranjang
+                        navButton.classList.add('text-yellow-600', 'bg-yellow-50');
+                        break;
+                    case 'orders':
+                        // Ungu untuk Riwayat Pesanan
+                        navButton.classList.add('text-purple-600', 'bg-purple-50');
+                        break;
+                    case 'userProfile':
+                        // Hijau untuk Profil
+                        navButton.classList.add('text-green-600', 'bg-green-50');
+                        break;    
+                    default:
+                        // Fallback untuk tombol lain (jika ada)
+                        navButton.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+                        break;
                 }
+
             }
             
             // Load section-specific data
@@ -1676,7 +1733,10 @@
                 document.getElementById('productDetailSection').classList.remove('hidden');   
             } else if (section === 'favorites') {
                 renderFavorites(); // Panggil fungsi render
-                document.getElementById('favoritesSection').classList.remove('hidden'); 
+                document.getElementById('favoritesSection').classList.remove('hidden');
+            } else if (section === 'userProfile') {
+                loadUserProfile(); // Panggil fungsi baru untuk memuat data profil
+                document.getElementById('userProfileSection').classList.remove('hidden');     
             }
         }
 
@@ -2962,6 +3022,86 @@ grid.innerHTML = filteredProducts.map(product => `
                     </div>
                 </div>
             `).join('');
+        }
+
+        // Fungsi baru (helper) untuk menghitung total belanja
+        function calculateTotalSpending() {
+            if (!currentUser) return 0;
+            
+            // 1. Filter pesanan milik user ini
+            // 2. Filter pesanan yang statusnya BUKAN 'cancelled'
+            const userValidOrders = orders.filter(order =>
+                order.user_id === currentUser.id &&
+                order.status !== 'cancelled'
+            );
+            
+            // 3. Jumlahkan totalnya
+            const total = userValidOrders.reduce((sum, order) => sum + (order.total_amount || 0), 0);
+            return total;
+        }
+
+        // Fungsi baru untuk memuat dan menampilkan halaman profil
+        function loadUserProfile() {
+            const container = document.getElementById('userProfileContent');
+            if (!container) return;
+
+            if (!currentUser) {
+                // Tampilkan pesan jika belum login
+                container.innerHTML = `
+                    <div class="text-center py-16">
+                         <div class="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-user-lock text-gray-400 text-3xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">Login untuk Melihat Profil</h3>
+                        <p class="text-gray-600 mb-6 max-w-md mx-auto">
+                            Informasi profil Anda akan muncul di sini setelah Anda login.
+                        </p>
+                        <button onclick="showAuthModal('login')" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors transform hover:scale-105">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Login Sekarang
+                        </button>
+                    </div>`;
+                return;
+            }
+
+            // Hitung total belanja
+            const totalSpending = calculateTotalSpending();
+
+            // Tampilkan data profil
+            container.innerHTML = `
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center space-x-4">
+                            ${
+                                currentUser.photo_url
+                                ? `<img src="${currentUser.photo_url}" alt="Foto Profil" class="w-16 h-16 rounded-full object-cover flex-shrink-0 border-2 border-gray-200 shadow-sm" onerror="this.src='https://placehold.co/64x64/e2e8f0/cbd5e0?text=${currentUser.name.charAt(0)}'">`
+                                : `<div class="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <span class="text-white text-3xl font-bold">${currentUser.name.charAt(0).toUpperCase()}</span>
+                                </div>`
+                            }
+                            <div>
+                                <h3 class="text-2xl font-bold text-gray-900">${currentUser.name}</h3>
+                                <p class="text-sm text-gray-500">${currentUser.email}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <dl class="space-y-4">
+                            <div class="flex justify-between">
+                                <dt class="text-sm font-medium text-gray-500">Nomor Kontak (WA)</dt>
+                                <dd class="text-sm font-medium text-gray-900">${currentUser.phone_number || 'Belum diatur'}</dd>
+                            </div>
+                            <div class="flex justify-between">
+                                <dt class="text-sm font-medium text-gray-500">Role</dt>
+                                <dd class="text-sm font-medium text-gray-900 capitalize">${currentUser.role}</dd>
+                            </div>
+                            <div class="flex justify-between pt-4 border-t border-gray-100">
+                                <dt class="text-base font-semibold text-gray-500">Total Belanja</dt>
+                                <dd class="text-xl font-bold text-blue-600">Rp ${formatPrice(totalSpending)}</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+            `;
         }
 
         // Render cart
@@ -5255,5 +5395,4 @@ async function checkout() {
     </script>
 </body>
 </html>
-
 
