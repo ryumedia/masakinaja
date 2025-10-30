@@ -165,14 +165,9 @@
         <!-- User Profile Section -->
         <section id="userProfileSection" class="section-content hidden relative pt-16">
             <!-- Floating Back Button -->
-            <button onclick="showSection('shopping')"
-                    class="fixed top-20 left-4 sm:left-6 lg:left-8 z-50 bg-yellow-400 w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:text-blue-600 hover:bg-yellow-300 transition-all transform hover:scale-110 focus:outline-none"
-                    title="Kembali ke Daftar Produk">
-                <i class="fas fa-arrow-left text-xl"></i>
-            </button>
             <div class="max-w-2xl mx-auto">
-                <div class="flex items-center justify-end mb-8">
-                    <h2 class="text-lg font-bold text-gray-900">Profil Saya</h2>
+                <div class="flex items-center justify-start mb-8">
+                    <h2 class="text-2xl font-bold text-gray-900">Profil Saya</h2>
                 </div>
                 <div id="userProfileContent">
                     <!-- Profile content will be loaded here by JavaScript -->
@@ -838,6 +833,58 @@
         </div>
     </div>
 
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg">
+            <div class="p-6">
+                <div class="text-center mb-6">
+                    <div class="mx-auto w-16 h-16 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-user-edit text-white text-2xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900">Edit Profil</h2>
+                </div>
+
+                <form id="editProfileForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
+                        <input type="text" id="editFullName" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" id="editEmail" disabled readonly
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nomor Kontak (WA)</label>
+                        <input type="tel" id="editPhoneNumber" placeholder="Contoh: 081234567890"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">URL Foto Profil (Opsional)</label>
+                        <input type="url" id="editPhotoUrl" placeholder="https://..."
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                    </div>
+
+                    <div class="flex space-x-3 pt-4">
+                        <button type="submit" 
+                                class="flex-1 bg-gradient-to-r from-green-500 to-blue-600 text-white py-3 rounded-lg font-medium hover:from-green-600 hover:to-blue-700 transition-all">
+                            <i class="fas fa-save mr-2"></i>Simpan Perubahan
+                        </button>
+                        <button type="button" onclick="hideEditProfileModal()" 
+                                class="flex-1 bg-gray-600 text-white py-3 rounded-lg font-medium hover:bg-gray-700 transition-all">
+                            <i class="fas fa-times mr-2"></i>Batal
+                        </button>
+                    </div>
+                </form>
+
+                <button onclick="hideEditProfileModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Auth Modal -->
     <div id="authModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-md">
@@ -938,6 +985,7 @@
             document.getElementById('authForm').addEventListener('submit', handleAuth);
             document.getElementById('vendorForm').addEventListener('submit', handleAddVendor);
             document.getElementById('productForm').addEventListener('submit', handleAddProduct);
+            document.getElementById('editProfileForm').addEventListener('submit', handleEditProfile);
         }
 
         // --- SCROLL TO TOP LOGIC ---
@@ -3070,17 +3118,26 @@ grid.innerHTML = filteredProducts.map(product => `
             container.innerHTML = `
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="p-6 border-b border-gray-200">
-                        <div class="flex items-center space-x-4">
-                            ${
-                                currentUser.photo_url
-                                ? `<img src="${currentUser.photo_url}" alt="Foto Profil" class="w-16 h-16 rounded-full object-cover flex-shrink-0 border-2 border-gray-200 shadow-sm" onerror="this.src='https://placehold.co/64x64/e2e8f0/cbd5e0?text=${currentUser.name.charAt(0)}'">`
-                                : `<div class="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <span class="text-white text-3xl font-bold">${currentUser.name.charAt(0).toUpperCase()}</span>
-                                </div>`
-                            }
+                        <div class="flex items-center justify-between space-x-4">
+                            <!-- Grup Kiri: Foto & Nama -->
+                            <div class="flex items-center space-x-4">
+                                ${
+                                    currentUser.photo_url
+                                    ? `<img src="${currentUser.photo_url}" alt="Foto Profil" class="w-16 h-16 rounded-full object-cover flex-shrink-0 border-2 border-gray-200 shadow-sm" onerror="this.src='https://placehold.co/64x64/e2e8f0/cbd5e0?text=${currentUser.name.charAt(0)}'">`
+                                    : `<div class="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <span class="text-white text-3xl font-bold">${currentUser.name.charAt(0).toUpperCase()}</span>
+                                    </div>`
+                                }
+                                <div>
+                                    <h3 class="text-2xl font-bold text-gray-900">${currentUser.name}</h3>
+                                    <p class="text-sm text-gray-500">${currentUser.email}</p>
+                                </div>
+                            </div>
+                            <!-- Grup Kanan: Tombol Edit -->
                             <div>
-                                <h3 class="text-2xl font-bold text-gray-900">${currentUser.name}</h3>
-                                <p class="text-sm text-gray-500">${currentUser.email}</p>
+                                <button onclick="showEditProfileModal()" class="text-blue-600 hover:text-blue-800 font-medium px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors">
+                                    <i class="fas fa-edit mr-2"></i>Edit
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -3099,9 +3156,97 @@ grid.innerHTML = filteredProducts.map(product => `
                                 <dd class="text-xl font-bold text-blue-600">Rp ${formatPrice(totalSpending)}</dd>
                             </div>
                         </dl>
+                        <div class="mt-6 pt-4 border-t border-dashed border-gray-200">
+                            <p class="text-sm text-center text-gray-600 italic">
+                                Jazakumullahu Khoiron Katsiro, dengan belanja di Warung Masakin, anda berkontribusi dalam program Wakaf Bilistiwa KAF Gedebage
+                            </p>
+                        </div>
                     </div>
                 </div>
             `;
+        }
+
+        // Show Edit Profile Modal
+        function showEditProfileModal() {
+            if (!currentUser) return; // Pastikan user ada
+            
+            // Isi form dengan data user saat ini
+            document.getElementById('editFullName').value = currentUser.name || '';
+            document.getElementById('editEmail').value = currentUser.email || '';
+            document.getElementById('editPhoneNumber').value = currentUser.phone_number || '';
+            document.getElementById('editPhotoUrl').value = currentUser.photo_url || '';
+            
+            // Tampilkan modal
+            const modal = document.getElementById('editProfileModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        // Hide Edit Profile Modal
+        function hideEditProfileModal() {
+            const modal = document.getElementById('editProfileModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.getElementById('editProfileForm').reset(); // Kosongkan form
+        }
+
+        // Handle Edit Profile Form Submission
+        async function handleEditProfile(e) {
+            e.preventDefault();
+            if (!currentUser || !supabaseClient) return;
+
+            const confirmBtn = e.target.querySelector('button[type="submit"]');
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Menyimpan...';
+
+            // Ambil nilai baru dari form
+            const newName = document.getElementById('editFullName').value.trim();
+            const newPhone = document.getElementById('editPhoneNumber').value.trim();
+            const newPhoto = document.getElementById('editPhotoUrl').value.trim();
+
+            const updateData = {
+                full_name: newName,
+                phone_number: newPhone || null, // Kirim null jika kosong
+                photo_url: newPhoto || null, // Kirim null jika kosong
+                updated_at: new Date().toISOString()
+            };
+
+            try {
+                // Update data di tabel 'users'
+                const { data, error } = await supabaseClient
+                    .from('users')
+                    .update(updateData)
+                    .eq('id', currentUser.id)
+                    .select() // Ambil data yang sudah diupdate
+                    .single(); // Kita hanya mengupdate satu user
+
+                if (error) throw error;
+
+                // Update data di variabel global 'currentUser'
+                currentUser.name = data.full_name;
+                currentUser.phone_number = data.phone_number;
+                currentUser.photo_url = data.photo_url;
+
+                // Muat ulang tampilan profil untuk menampilkan data baru
+                loadUserProfile();
+
+                // Update title di tombol header
+                const userProfileNav = document.getElementById('userProfileNav');
+                if (userProfileNav) {
+                    userProfileNav.title = `Profil: ${currentUser.name}`;
+                }
+                
+                hideEditProfileModal();
+                showNotification('Profil berhasil diperbarui!', 'success');
+
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showNotification('Gagal memperbarui profil: ' + error.message, 'error');
+            } finally {
+                // Aktifkan kembali tombol
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = '<i class="fas fa-save mr-2"></i>Simpan Perubahan';
+            }
         }
 
         // Render cart
