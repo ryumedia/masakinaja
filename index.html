@@ -94,15 +94,30 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Shopping Section -->
         <section id="shoppingSection" class="section-content">
+            
+            <div class="mb-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <div class="relative">
+                    <!-- 
+                      'oninput="filterProducts()"' akan memanggil fungsi JS
+                      setiap kali Anda mengetik sesuatu di kotak ini.
+                    -->
+                    <input type="text" id="productSearchInput" oninput="filterProducts()" 
+                           placeholder="Cari nama produk..." 
+                           class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <!-- Ikon pencarian di dalam kotak input -->
+                    <i class="fas fa-search text-gray-400 absolute left-4 top-1/2 -translate-y-1/2"></i>
+                </div>
+            </div>
+            
             <!-- Type Filter -->
             <div class="mb-4 flex items-center space-x-2 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-    <label for="typeFilterSelect" class="text-md font-medium text-gray-700 flex-shrink-0">
-        <i class="fas fa-filter mr-2"></i>Pilih Tipe:
-    </label>
-    <select id="typeFilterSelect" onchange="filterByType(this.value)" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
-        <!-- Pilihan tipe akan dimuat di sini oleh JavaScript -->
-    </select>
-</div>
+                <label for="typeFilterSelect" class="text-md font-medium text-gray-700 flex-shrink-0">
+                    <i class="fas fa-filter mr-2"></i>Pilih Tipe:
+                </label>
+                <select id="typeFilterSelect" onchange="filterByType(this.value)" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                    <!-- Pilihan tipe akan dimuat di sini oleh JavaScript -->
+                </select>
+            </div>
 
             <!-- Products Grid -->
             <div id="productsGrid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -2761,9 +2776,17 @@
             	renderProducts();
         	}
 
+        // Fungsi baru untuk menangani input pencarian
+        function filterProducts() {
+            // Kita hanya perlu memanggil renderProducts() lagi,
+            // karena renderProducts() akan kita ubah untuk membaca input pencarian
+            renderProducts();
+        }
+
         // Render products
         function renderProducts() {
             const grid = document.getElementById('productsGrid');
+            const searchTerm = document.getElementById('productSearchInput')?.value.toLowerCase() || '';
             
             if (shopStatus === 'closed') {
                 grid.innerHTML = `
@@ -2794,70 +2817,74 @@
             
             // ... (di dalam fungsi renderProducts)
             
-// Filter produk untuk HANYA menampilkan yang statusnya 'active' dan sesuai tipe
-const filteredProducts = products.filter(product => {
-    // Kondisi 1: Status produk harus 'active' (atau null jika kolomnya belum ada)
-    const isActive = product.status === 'active' || product.status == null;
+            // Filter produk untuk HANYA menampilkan yang statusnya 'active' dan sesuai tipe
+            const filteredProducts = products.filter(product => {
+            // Kondisi 1: Status produk harus 'active' (atau null jika kolomnya belum ada)
+            const isActive = product.status === 'active' || product.status == null;
     
-    // Kondisi 2: Tipe produk harus cocok dengan filter dropdown (jika ada yang dipilih)
-    const typeMatch = !currentTypeFilter || (product.type || '').toLowerCase() === currentTypeFilter.toLowerCase();
+            // Kondisi 2: Tipe produk harus cocok dengan filter dropdown (jika ada yang dipilih)
+            const typeMatch = !currentTypeFilter || (product.type || '').toLowerCase() === currentTypeFilter.toLowerCase();
     
-    // Produk akan ditampilkan hanya jika kedua kondisi terpenuhi
-    return isActive && typeMatch;
-});
+            // ▼▼▼ TAMBAHKAN KONDISI 3 INI ▼▼▼
+            const searchMatch = !searchTerm || (product.name || '').toLowerCase().includes(searchTerm);
 
-// Check if no products available
-if (filteredProducts.length === 0) {
-                grid.innerHTML = `
-                    <div class="col-span-full text-center py-16">
-                        <div class="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <i class="fas fa-box-open text-gray-400 text-3xl"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold text-gray-900 mb-4">Belum Ada Produk</h3>
-                        <p class="text-gray-600 mb-6 max-w-md mx-auto">
-                            ${currentTypeFilter ? `Tidak ada produk untuk tipe "${currentTypeFilter}".` : 'Database terhubung tapi belum ada produk. Tambahkan produk melalui panel vendor.'}
-                        </p>
-                        ${!currentTypeFilter ? `
-                            <button onclick="loadDataFromDatabase()" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
-                                <i class="fas fa-refresh mr-2"></i>Refresh
-                            </button>
-                        ` : ''}
-                    </div>
-                `;
-                return;
-            }
+            // ▼▼▼ UBAH BARIS 'return' DI BAWAH INI ▼▼▼
+            // Produk akan ditampilkan hanya jika KETIGA kondisi terpenuhi
+            return isActive && typeMatch && searchMatch;
+        });
+
+            // Check if no products available
+            if (filteredProducts.length === 0) {
+                            grid.innerHTML = `
+                                <div class="col-span-full text-center py-16">
+                                    <div class="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                        <i class="fas fa-box-open text-gray-400 text-3xl"></i>
+                                    </div>
+                                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Belum Ada Produk</h3>
+                                    <p class="text-gray-600 mb-6 max-w-md mx-auto">
+                                    ${currentTypeFilter || searchTerm ? `Tidak ada produk yang cocok dengan filter atau pencarian Anda.` : 'Database terhubung tapi belum ada produk. Tambahkan produk melalui panel vendor.'}
+                                    </p>
+                                    ${!currentTypeFilter ? `
+                                        <button onclick="loadDataFromDatabase()" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                                            <i class="fas fa-refresh mr-2"></i>Refresh
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            `;
+                            return;
+                        }
             
             // Render products
-grid.innerHTML = filteredProducts.map(product => `
-    <div class="vendor-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col cursor-pointer" onclick="showProductDetail(${product.id})">
-        <div class="aspect-w-16 aspect-h-12 bg-gray-200">
-            <img src="${product.image_url || 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZLYhhcn24Ldg-Oi9fPz47a-r_IVHV2tbr1VhFXs424_MkjJfgrSIZyVmddxmyZ5PaUAT4gxPPXe_uH5DziW2rsJnIlTycyAAYrMrAz588ytSsbqyHfDVI3xvlXwpQfCaZqmNcFnecApQIapC2jGVcDQgDp01G_8fPvVV397vxuOU_Ge8aDKHupI4Yo1I/s500/Masakin%20aja.png'}" 
-                 alt="${product.name}" 
-                 class="w-full h-32 sm:h-48 object-cover"
-                 onerror="this.src='https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZLYhhcn24Ldg-Oi9fPz47a-r_IVHV2tbr1VhFXs424_MkjJfgrSIZyVmddxmyZ5PaUAT4gxPPXe_uH5DziW2rsJnIlTycyAAYrMrAz588ytSsbqyHfDVI3xvlXwpQfCaZqmNcFnecApQIapC2jGVcDQgDp01G_8fPvVV397vxuOU_Ge8aDKHupI4Yo1I/s500/Masakin%20aja.png'">
-        </div>
-        <div class="p-3 sm:p-4 flex flex-col flex-grow">
-            <div>
-                <div class="flex items-center justify-between mb-2">
-                    <span class="px-2 py-0.5 bg-green-100 text-green-800 rounded-full text-[8px] font-medium">
-                        ${product.type ? (product.type.charAt(0).toUpperCase() + product.type.slice(1)) : 'Umum'}
-                    </span>
-                    <span class="text-xs text-gray-500">Stok: ${product.stock || 0}</span>
+            grid.innerHTML = filteredProducts.map(product => `
+                <div class="vendor-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col cursor-pointer" onclick="showProductDetail(${product.id})">
+                    <div class="aspect-w-16 aspect-h-12 bg-gray-200">
+                        <img src="${product.image_url || 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZLYhhcn24Ldg-Oi9fPz47a-r_IVHV2tbr1VhFXs424_MkjJfgrSIZyVmddxmyZ5PaUAT4gxPPXe_uH5DziW2rsJnIlTycyAAYrMrAz588ytSsbqyHfDVI3xvlXwpQfCaZqmNcFnecApQIapC2jGVcDQgDp01G_8fPvVV397vxuOU_Ge8aDKHupI4Yo1I/s500/Masakin%20aja.png'}" 
+                            alt="${product.name}" 
+                            class="w-full h-32 sm:h-48 object-cover"
+                            onerror="this.src='https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZLYhhcn24Ldg-Oi9fPz47a-r_IVHV2tbr1VhFXs424_MkjJfgrSIZyVmddxmyZ5PaUAT4gxPPXe_uH5DziW2rsJnIlTycyAAYrMrAz588ytSsbqyHfDVI3xvlXwpQfCaZqmNcFnecApQIapC2jGVcDQgDp01G_8fPvVV397vxuOU_Ge8aDKHupI4Yo1I/s500/Masakin%20aja.png'">
+                    </div>
+                    <div class="p-3 sm:p-4 flex flex-col flex-grow">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="px-2 py-0.5 bg-green-100 text-green-800 rounded-full text-[8px] font-medium">
+                                    ${product.type ? (product.type.charAt(0).toUpperCase() + product.type.slice(1)) : 'Umum'}
+                                </span>
+                                <span class="text-xs text-gray-500">Stok: ${product.stock || 0}</span>
+                            </div>
+                            <h3 class="font-semibold text-gray-900 text-sm sm:text-base mb-1 line-clamp-2">${product.name}</h3>
+                            <p class="text-gray-500 text-xs mb-2 line-clamp-1">${product.description || ''}</p>
+                            <div class="text-xs text-blue-600 hover:text-blue-800 font-medium mt-1">
+                                Selengkapnya &gt;&gt;
+                            </div>
+                        </div>
+                        
+                        <div class="mt-auto pt-2">
+                            <span class="text-lg sm:text-xl font-bold text-blue-600 block mb-2">Rp ${formatPrice(product.price || 0)}</span>
+                        </div>
+                    </div>
                 </div>
-                <h3 class="font-semibold text-gray-900 text-sm sm:text-base mb-1 line-clamp-2">${product.name}</h3>
-                <p class="text-gray-500 text-xs mb-2 line-clamp-1">${product.description || ''}</p>
-                <div class="text-xs text-blue-600 hover:text-blue-800 font-medium mt-1">
-                    Selengkapnya &gt;&gt;
-                </div>
-            </div>
-            
-            <div class="mt-auto pt-2">
-                 <span class="text-lg sm:text-xl font-bold text-blue-600 block mb-2">Rp ${formatPrice(product.price || 0)}</span>
-            </div>
-        </div>
-    </div>
-`).join('');
-        }
+            `).join('');
+                    }
 
         // Show Product Detail Page
         function showProductDetail(productId) {
@@ -3063,14 +3090,14 @@ grid.innerHTML = filteredProducts.map(product => `
                         <i class="fas fa-heart text-lg"></i>
                     </button>
 
-                    <div class="aspect-w-16 aspect-h-12 bg-gray-200 cursor-pointer" onclick="showProductDetail(${product.id})">
+                    <div class="aspect-w-16 aspect-h-12 bg-gray-200 cursor-pointer")">
                         <img src="${product.image_url || 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZLYhhcn24Ldg-Oi9fPz47a-r_IVHV2tbr1VhFXs424_MkjJfgrSIZyVmddxmyZ5PaUAT4gxPPXe_uH5DziW2rsJnIlTycyAAYrMrAz588ytSsbqyHfDVI3xvlXwpQfCaZqmNcFnecApQIapC2jGVcDQgDp01G_8fPvVV397vxuOU_Ge8aDKHupI4Yo1I/s500/Masakin%20aja.png'}"
                              alt="${product.name}"
                              class="w-full h-32 sm:h-48 object-cover"
                              onerror="this.src='https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZLYhhcn24Ldg-Oi9fPz47a-r_IVHV2tbr1VhFXs424_MkjJfgrSIZyVmddxmyZ5PaUAT4gxPPXe_uH5DziW2rsJnIlTycyAAYrMrAz588ytSsbqyHfDVI3xvlXwpQfCaZqmNcFnecApQIapC2jGVcDQgDp01G_8fPvVV397vxuOU_Ge8aDKHupI4Yo1I/s500/Masakin%20aja.png'">
                     </div>
                     <div class="p-3 sm:p-4 flex flex-col flex-grow">
-                        <div class="cursor-pointer" onclick="showProductDetail(${product.id})">
+                        <div class="cursor-pointer">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="px-2 py-0.5 bg-green-100 text-green-800 rounded-full text-[8px] font-medium">
                                      ${product.type ? (product.type.charAt(0).toUpperCase() + product.type.slice(1)) : 'Umum'}
@@ -3078,13 +3105,15 @@ grid.innerHTML = filteredProducts.map(product => `
                                 <span class="text-xs text-gray-500">Stok: ${product.stock || 0}</span>
                             </div>
                             <h3 class="font-semibold text-gray-900 text-sm sm:text-base mb-1 line-clamp-2">${product.name}</h3>
-                            <p class="text-gray-500 text-xs mb-2 line-clamp-1">${product.description || ''}</p>
-                            <div class="text-xs text-blue-600 hover:text-blue-800 font-medium mt-1">
-                                Selengkapnya &gt;&gt;
-                            </div>
-                        </div>
+                           </div>
                         <div class="mt-auto pt-2">
-                             <span class="text-lg sm:text-xl font-bold text-blue-600 block mb-2 cursor-pointer" onclick="showProductDetail(${product.id})">Rp ${formatPrice(product.price || 0)}</span>
+                             <span class="text-lg sm:text-xl font-bold text-blue-600 block mb-2">Rp ${formatPrice(product.price || 0)}</span>
+				<button onclick="addToCart(${product.id})" 
+                        class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-2 rounded-lg font-medium text-xs sm:text-sm hover:from-blue-600 hover:to-purple-700 transition-all transform hover:scale-105 ${(product.stock || 0) === 0 ? 'opacity-50 cursor-not-allowed' : ''}"
+                        ${(product.stock || 0) === 0 ? 'disabled' : ''}>
+                    <i class="fas fa-cart-plus mr-1 sm:mr-2"></i>
+                    ${(product.stock || 0) === 0 ? 'Habis' : 'Tambah'}
+                </button>
                         </div>
                     </div>
                 </div>
