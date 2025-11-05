@@ -869,35 +869,48 @@
     <div id="editProfileModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg">
             <div class="p-6">
-                <div class="text-center mb-6">
-                    <div class="mx-auto w-16 h-16 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center mb-4">
-                        <i class="fas fa-user-edit text-white text-2xl"></i>
-                    </div>
-                    <h2 class="text-2xl font-bold text-gray-900">Edit Profil</h2>
+                <div class="text-center mb-4">
+                    <h2 class="text-lg font-bold text-gray-900">Edit Profil</h2>
                 </div>
 
-                <form id="editProfileForm" class="space-y-4">
+                <form id="editProfileForm" class="space-y-2">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
                         <input type="text" id="editFullName" required
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                               class="w-full px-4 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                         <input type="email" id="editEmail" disabled readonly
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed">
+                               class="w-full px-4 py-1 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Nomor Kontak (WA)</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Kontak (WA)</label>
                         <input type="tel" id="editPhoneNumber" placeholder="Contoh: 081234567890"
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                               class="w-full px-4 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">URL Foto Profil (Opsional)</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">URL Foto Profil (Opsional)</label>
                         <input type="url" id="editPhotoUrl" placeholder="https://..."
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                               class="w-full px-4 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
                     </div>
-
+                    <hr class="border-t border-gray-200 my-2">
+                    <div>
+                        <h4 class="text-md font-semibold text-gray-800 mb-1">Ubah Password</h4>
+                        <p class="text-xs text-gray-500 mb-2">Isi hanya jika Anda ingin mengubah password. Biarkan kosong jika tidak.</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Password Baru (Min. 6 karakter)</label>
+                        <input type="password" id="editPassword" 
+                               placeholder="••••••••"
+                               class="w-full px-4 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password Baru</label>
+                        <input type="password" id="editConfirmPassword" 
+                               placeholder="••••••••"
+                               class="w-full px-4 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                    </div>
                     <div class="flex space-x-3 pt-4">
                         <button type="submit" 
                                 class="flex-1 bg-gradient-to-r from-green-500 to-blue-600 text-white py-3 rounded-lg font-medium hover:from-green-600 hover:to-blue-700 transition-all">
@@ -928,7 +941,7 @@
                     <h2 id="authTitle" class="text-2xl font-bold text-gray-900">Login</h2>
                 </div>
 
-                <form id="authForm" class="space-y-4">
+                <form id="authForm" class="space-y-4" novalidate>
                     <div id="nameField" class="hidden">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
                         <input type="text" id="fullName" 
@@ -960,6 +973,9 @@
                     <button id="authToggle" onclick="toggleAuthMode()" class="text-blue-600 hover:text-blue-800 font-medium">
                         Belum punya akun? Daftar di sini
                     </button>
+                    <button id="forgotPasswordToggle" onclick="showResetPasswordMode()" class="text-sm text-gray-500 hover:text-blue-600 mt-2 block w-full hidden">
+                        Lupa Password? Klik disini
+                    </button>
                 </div>
 
                 <button onclick="hideAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
@@ -984,6 +1000,7 @@
         let supabaseClient = null;
         let shopStatus = 'open';
         let userFavorites = [];
+        let currentAuthMode = 'login';
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', async function() { // Menjadi async
@@ -1445,6 +1462,9 @@
             const toggle = document.getElementById('authToggle');
             const nameField = document.getElementById('nameField');
             const phoneField = document.getElementById('phoneField');
+            const forgotPasswordToggle = document.getElementById('forgotPasswordToggle');
+            document.getElementById('password').parentElement.classList.remove('hidden');
+
             
             if (mode === 'login') {
                 title.textContent = 'Login';
@@ -1453,6 +1473,8 @@
                 toggle.textContent = 'Belum punya akun? Daftar di sini';
                 nameField.classList.add('hidden');
                 phoneField.classList.add('hidden');
+                forgotPasswordToggle.classList.remove('hidden'); // Tampilkan 'Lupa Password?'
+                currentAuthMode = 'login'; // Set mode
             } else {
                 title.textContent = 'Daftar';
                 icon.className = 'fas fa-user-plus text-white text-2xl';
@@ -1460,6 +1482,8 @@
                 toggle.textContent = 'Sudah punya akun? Login di sini';
                 nameField.classList.remove('hidden');
                 phoneField.classList.remove('hidden');
+                forgotPasswordToggle.classList.add('hidden'); // Sembunyikan 'Lupa Password?'
+                currentAuthMode = 'register'; // Set mode
             }
             
             modal.classList.remove('hidden');
@@ -1483,18 +1507,46 @@
             }
         }
 
+        function showResetPasswordMode() {
+            currentAuthMode = 'reset';
+            
+            document.getElementById('authTitle').textContent = 'Reset Password';
+            document.getElementById('authIcon').className = 'fas fa-key text-white text-2xl';
+            document.getElementById('authSubmit').textContent = 'Kirim Link Reset';
+            
+            // Sembunyikan field yang tidak perlu
+            document.getElementById('nameField').classList.add('hidden');
+            document.getElementById('phoneField').classList.add('hidden');
+            document.getElementById('password').parentElement.classList.add('hidden'); // Sembunyikan div password
+            
+            // Ubah tombol toggle utama untuk kembali ke Login
+            const authToggle = document.getElementById('authToggle');
+            authToggle.textContent = 'Kembali ke Login';
+            authToggle.onclick = () => {
+                // Saat diklik, pastikan field password muncul lagi dan kembali ke mode login
+                document.getElementById('password').parentElement.classList.remove('hidden');
+                showAuthModal('login');
+            };
+            
+            // Sembunyikan tombol 'Lupa Password' itu sendiri
+            document.getElementById('forgotPasswordToggle').classList.add('hidden');
+        }
+
         // Handle authentication
         async function handleAuth(e) {
             e.preventDefault();
             
+            // Ambil value
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const isLogin = document.getElementById('authTitle').textContent === 'Login';
-            
-            if (isLogin) {
+
+            // Cek mode saat ini
+            if (currentAuthMode === 'login') {
                 await handleLogin(email, password);
-            } else {
+            } else if (currentAuthMode === 'register') {
                 await handleRegister(email, password);
+            } else if (currentAuthMode === 'reset') {
+                await handlePasswordReset(email); // Panggil fungsi reset baru
             }
         }
 
@@ -1686,6 +1738,51 @@
                 }
                 
                 showNotification(errorMessage, 'error');
+            }
+        }
+
+        async function handlePasswordReset(email) {
+            if (!supabaseClient) {
+                showNotification('Koneksi database tidak tersedia', 'error');
+                return;
+            }
+            if (!email) {
+                showNotification('Email tidak boleh kosong', 'error');
+                return;
+            }
+
+            const submitBtn = document.getElementById('authSubmit');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Mengirim...';
+
+            try {
+                // Kirim link reset password
+                // Supabase akan mengirim email menggunakan template dari dashboard Anda
+                const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                    // Anda bisa menambahkan URL redirect spesifik di sini jika perlu,
+                    // tapi biasanya ini diatur di dashboard Supabase Anda.
+                    // redirectTo: window.location.origin + '/update-password' 
+                });
+
+                if (error) throw error;
+
+                showNotification('Link reset password telah dikirim ke email Anda!', 'success');
+                
+                // Kembalikan ke mode login setelah berhasil
+                hideAuthModal();
+                // Reset formnya kembali ke mode login
+                document.getElementById('password').parentElement.classList.remove('hidden');
+                showAuthModal('login'); 
+
+            } catch (error) {
+                console.error('Password reset error:', error);
+                showNotification('Gagal mengirim link: ' + error.message, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                // Pastikan teks tombol kembali normal jika masih di modal yg sama
+                if (currentAuthMode === 'reset') {
+                submitBtn.innerHTML = 'Kirim Link Reset';
+                }
             }
         }
 
@@ -3247,37 +3344,74 @@
             confirmBtn.disabled = true;
             confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Menyimpan...';
 
-            // Ambil nilai baru dari form
+            // 1. Ambil data profil
             const newName = document.getElementById('editFullName').value.trim();
             const newPhone = document.getElementById('editPhoneNumber').value.trim();
             const newPhoto = document.getElementById('editPhotoUrl').value.trim();
 
+            // 2. Ambil data password
+            const newPassword = document.getElementById('editPassword').value;
+            const confirmPassword = document.getElementById('editConfirmPassword').value;
+
             const updateData = {
                 full_name: newName,
-                phone_number: newPhone || null, // Kirim null jika kosong
-                photo_url: newPhoto || null, // Kirim null jika kosong
+                phone_number: newPhone || null,
+                photo_url: newPhoto || null,
                 updated_at: new Date().toISOString()
             };
 
+            let profileUpdateSuccess = false;
+            let passwordUpdateSuccess = false;
+            let passwordUpdateAttempted = false; // Melacak jika user mencoba ganti password
+
             try {
-                // Update data di tabel 'users'
+                // --- PROSES 1: UPDATE PROFIL (Nama, HP, Foto) ---
                 const { data, error } = await supabaseClient
                     .from('users')
                     .update(updateData)
                     .eq('id', currentUser.id)
-                    .select() // Ambil data yang sudah diupdate
-                    .single(); // Kita hanya mengupdate satu user
+                    .select()
+                    .single();
 
-                if (error) throw error;
+                if (error) throw error; // Lemparkan error jika update profil (di tabel 'users') gagal
 
                 // Update data di variabel global 'currentUser'
                 currentUser.name = data.full_name;
                 currentUser.phone_number = data.phone_number;
                 currentUser.photo_url = data.photo_url;
+                profileUpdateSuccess = true;
+
+                // --- PROSES 2: UPDATE PASSWORD (jika diisi) ---
+                
+                // Cek HANYA jika user mengisi field password baru
+                if (newPassword) {
+                    passwordUpdateAttempted = true; // User mencoba ganti password
+
+                    // Validasi 1: Cek panjang password
+                    if (newPassword.length < 6) {
+                        throw new Error('Password baru harus minimal 6 karakter');
+                    }
+                    
+                    // Validasi 2: Cek konfirmasi password
+                    if (newPassword !== confirmPassword) {
+                        throw new Error('Konfirmasi password tidak cocok');
+                    }
+                    
+                    // Jika validasi lolos, panggil Supabase Auth untuk ganti password
+                    const { error: passwordError } = await supabaseClient.auth.updateUser({
+                        password: newPassword
+                    });
+                    
+                    if (passwordError) throw passwordError; // Lemparkan error jika ganti password gagal
+
+                    passwordUpdateSuccess = true; // Tandai password sukses diubah
+                }
+
+                // --- PROSES 3: NOTIFIKASI SUKSES ---
 
                 // Muat ulang tampilan profil untuk menampilkan data baru
                 loadUserProfile();
-
+                
                 // Update title di tombol header
                 const userProfileNav = document.getElementById('userProfileNav');
                 if (userProfileNav) {
@@ -3285,18 +3419,42 @@
                 }
                 
                 hideEditProfileModal();
-                showNotification('Profil berhasil diperbarui!', 'success');
+                
+                // Beri notifikasi berdasarkan apa yang berhasil
+                if (passwordUpdateSuccess) {
+                    showNotification('Profil DAN Password berhasil diperbarui!', 'success');
+                } else if (profileUpdateSuccess && !passwordUpdateAttempted) {
+                    // Hanya profil yang diupdate, password tidak dicoba
+                    showNotification('Profil berhasil diperbarui!', 'success');
+                }
 
             } catch (error) {
-                console.error('Error updating profile:', error);
-                showNotification('Gagal memperbarui profil: ' + error.message, 'error');
+                // --- PROSES 4: PENANGANAN ERROR ---
+                console.error('Error updating profile/password:', error);
+                
+                // Tampilkan notifikasi error spesifik
+                if (error.message.includes('minimal 6 karakter')) {
+                    showNotification('Password baru harus minimal 6 karakter', 'error');
+                } else if (error.message.includes('tidak cocok')) {
+                    showNotification('Konfirmasi password tidak cocok', 'error');
+                } else {
+                    showNotification('Gagal memperbarui: ' + error.message, 'error');
+                }
+                
+                // Jika update profil berhasil TAPI update password GAGAL,
+                // kita tetap perlu muat ulang profil (karena nama/foto mungkin berubah)
+                if (profileUpdateSuccess) {
+                    loadUserProfile();
+                    hideEditProfileModal(); // Sembunyikan modal, tapi error password sudah ditampilkan
+                }
+
             } finally {
-                // Aktifkan kembali tombol
+                // --- PROSES 5: FINALISASI ---
                 confirmBtn.disabled = false;
                 confirmBtn.innerHTML = '<i class="fas fa-save mr-2"></i>Simpan';
             }
         }
-
+        
         // Render cart
         function renderCart() {
             const container = document.getElementById('cartContent');
@@ -5588,5 +5746,4 @@ async function checkout() {
     </script>
 </body>
 </html>
-
 
