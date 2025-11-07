@@ -324,6 +324,44 @@
                     </div>
                 </div>
 
+                <!-- BARU: Filter Section untuk Vendor -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Filter Produk Saya</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Cari Produk</label>
+                            <input type="text" id="vendorProductSearch" oninput="applyVendorProductFilters()" 
+                                placeholder="Masukkan nama produk..."
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Status Stok</label>
+                            <select id="vendorProductStockFilter" onchange="applyVendorProductFilters()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">Semua Status Stok</option>
+                                <option value="available">Tersedia</option>
+                                <option value="low">Stok Rendah (≤10)</option>
+                                <option value="out">Habis</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Status Aktif</label>
+                            <select id="vendorProductActivityFilter" onchange="applyVendorProductFilters()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">Semua Status Aktif</option>
+                                <option value="active">Aktif</option>
+                                <option value="inactive">Nonaktif</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center mt-4">
+                        <div class="text-sm text-gray-600">
+                            Menampilkan <span id="vendorFilteredProductsCount" class="font-medium">0</span> produk
+                        </div>
+                        <button onclick="resetVendorProductFilters()" class="text-blue-600 hover:text-blue-800 font-medium text-sm">
+                            <i class="fas fa-refresh mr-1"></i>Reset Filter
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Add Product Form (Hidden by default) -->
                 <div id="addProductForm" class="hidden bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Tambah Produk Baru</h3>
@@ -399,9 +437,6 @@
                     <div class="p-6 border-b border-gray-200">
                         <div class="flex items-center justify-between">
                             <h3 class="text-lg font-semibold text-gray-900">Daftar Produk Saya</h3>
-                            <div class="text-sm text-gray-600">
-                                Total: <span id="totalVendorProductsCount" class="font-medium">0</span> produk
-                            </div>
                         </div>
                     </div>
                     <div id="vendorProductsTable" class="overflow-x-auto">
@@ -451,16 +486,11 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Urutkan</label>
-                            <select id="adminProductSortFilter" onchange="applyAdminProductFilters()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                <option value="newest">Terbaru</option>
-                                <option value="oldest">Terlama</option>
-                                <option value="name_asc">Nama A-Z</option>
-                                <option value="name_desc">Nama Z-A</option>
-                                <option value="price_asc">Harga Terendah</option>
-                                <option value="price_desc">Harga Tertinggi</option>
-                                <option value="stock_asc">Stok Terendah</option>
-                                <option value="stock_desc">Stok Tertinggi</option>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Status Aktif</label>
+                            <select id="adminProductActivityFilter" onchange="applyAdminProductFilters()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">Semua Status</option>
+                                <option value="active">Aktif</option>
+                                <option value="inactive">Nonaktif</option>
                             </select>
                         </div>
                     </div>
@@ -3656,11 +3686,11 @@
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-gray-600">No. Rekening:</span>
-                                    <span class="font-medium text-gray-900 font-mono">332222255</span>
+                                    <span class="font-medium text-gray-900 font-mono">7292519928</span>
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-gray-600">Atas Nama:</span>
-                                    <span class="font-medium text-gray-900">Masakinaja.com</span>
+                                    <span class="font-medium text-gray-900">Irianti Mega</span>
                                 </div>
                             </div>
                             <div class="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -4019,7 +4049,7 @@ async function checkout() {
             document.getElementById('adminProductSearch').value = '';
             document.getElementById('adminProductVendorFilter').value = '';
             document.getElementById('adminProductStockFilter').value = '';
-            document.getElementById('adminProductSortFilter').value = 'newest';
+            document.getElementById('adminProductActivityFilter').value = '';
             loadAdminProductsTable();
         }
 
@@ -4027,7 +4057,7 @@ async function checkout() {
         function getFilteredAdminProducts() {
             const vendorFilter = document.getElementById('adminProductVendorFilter')?.value || '';
             const stockFilter = document.getElementById('adminProductStockFilter')?.value || '';
-            const sortFilter = document.getElementById('adminProductSortFilter')?.value || 'newest';
+            const activityFilter = document.getElementById('adminProductActivityFilter')?.value || '';
             const searchTerm = document.getElementById('adminProductSearch')?.value.toLowerCase() || '';
             
             let filteredProducts = [...products];
@@ -4057,29 +4087,17 @@ async function checkout() {
                 });
             }
             
-            // Sort products
-            filteredProducts.sort((a, b) => {
-                switch (sortFilter) {
-                    case 'newest':
-                        return new Date(b.created_at) - new Date(a.created_at);
-                    case 'oldest':
-                        return new Date(a.created_at) - new Date(b.created_at);
-                    case 'name_asc':
-                        return (a.name || '').localeCompare(b.name || '');
-                    case 'name_desc':
-                        return (b.name || '').localeCompare(a.name || '');
-                    case 'price_asc':
-                        return (a.price || 0) - (b.price || 0);
-                    case 'price_desc':
-                        return (b.price || 0) - (a.price || 0);
-                    case 'stock_asc':
-                        return (a.stock || 0) - (b.stock || 0);
-                    case 'stock_desc':
-                        return (b.stock || 0) - (a.stock || 0);
-                    default:
-                        return 0;
-                }
-            });
+            // Filter by activity status (BARU)
+            if (activityFilter) {
+                filteredProducts = filteredProducts.filter(product => {
+                    // Anggap produk 'null' (data lama) atau 'active' sebagai 'active'
+                    const productStatus = product.status === 'inactive' ? 'inactive' : 'active';
+                    return productStatus === activityFilter;
+                });
+            }
+            
+            // Sort products (sortir default berdasarkan terbaru)
+            filteredProducts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             
             return filteredProducts;
         }
@@ -5078,32 +5096,58 @@ async function checkout() {
             if (!currentUser || currentUser.role !== 'vendor') return;
             
             try {
-                // Filter products by vendor category
-                const vendorProducts = products.filter(p => p.category === currentUser.vendor_category);
+                // --- PERUBAHAN DIMULAI ---
+
+                // 1. Dapatkan semua produk vendor (untuk total)
+                const allVendorProducts = products.filter(p => p.category === currentUser.vendor_category);
                 
-                // Update total count
-                document.getElementById('totalVendorProductsCount').textContent = vendorProducts.length;
+                // 2. Dapatkan produk yang sudah difilter
+                const filteredProducts = getFilteredVendorProducts();
                 
-                if (vendorProducts.length === 0) {
-                    tableContainer.innerHTML = `
-                        <div class="p-8 text-center">
-                            <div class="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <i class="fas fa-box text-gray-400 text-3xl"></i>
+                // 3. Update statistik di filter box
+                const filteredCountSpan = document.getElementById('vendorFilteredProductsCount');
+                // const totalCountSpan = document.getElementById('vendorTotalProductsCount'); // ID ini sudah kita hapus dari header tabel
+                
+                if (filteredCountSpan) filteredCountSpan.textContent = filteredProducts.length;
+                // if (totalCountSpan) totalCountSpan.textContent = allVendorProducts.length; // Baris ini tidak lagi diperlukan
+                
+                // 4. Cek jika HASIL FILTER kosong
+                if (filteredProducts.length === 0) {
+                    // Cek apakah ada produk sama sekali, atau hanya filternya yang tidak cocok
+                    if (allVendorProducts.length === 0) {
+                        // Belum punya produk sama sekali
+                        tableContainer.innerHTML = `
+                            <div class="p-8 text-center">
+                                <div class="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                    <i class="fas fa-box text-gray-400 text-3xl"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-900 mb-4">Belum Ada Produk</h3>
+                                <p class="text-gray-600 mb-4">Anda belum menambahkan produk apapun</p>
+                                <button onclick="showAddProductForm()" class="bg-gradient-to-r from-green-500 to-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:from-green-600 hover:to-blue-700 transition-all">
+                                    <i class="fas fa-plus mr-2"></i>Tambah Produk Pertama
+                                </button>
                             </div>
-                            <h3 class="text-xl font-bold text-gray-900 mb-4">Belum Ada Produk</h3>
-                            <p class="text-gray-600 mb-4">Anda belum menambahkan produk apapun</p>
-                            <button onclick="showAddProductForm()" class="bg-gradient-to-r from-green-500 to-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:from-green-600 hover:to-blue-700 transition-all">
-                                <i class="fas fa-plus mr-2"></i>Tambah Produk Pertama
-                            </button>
-                        </div>
-                    `;
+                        `;
+                    } else {
+                        // Punya produk, tapi tidak ada yang cocok filter
+                         tableContainer.innerHTML = `
+                            <div class="p-8 text-center">
+                                <div class="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                    <i class="fas fa-filter text-gray-400 text-3xl"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-900 mb-4">Tidak Ada Produk Ditemukan</h3>
+                                <p class="text-gray-600 mb-4">Tidak ada produk yang cocok dengan filter Anda.</p>
+                                <button onclick="resetVendorProductFilters()" class="text-blue-600 hover:text-blue-800 font-medium">
+                                    <i class="fas fa-refresh mr-2"></i>Reset Filter
+                                </button>
+                            </div>
+                        `;
+                    }
                     return;
                 }
                 
-                // Sort products by creation date (newest first)
-                const sortedProducts = vendorProducts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-                
-                // Render products table
+                // 5. Render tabel dengan produk yang sudah difilter (dan disortir)
+                // (Kita gunakan `filteredProducts` BUKAN `sortedProducts` atau `vendorProducts` lagi)
                 const table = `
                     <table class="w-full">
                         <thead class="bg-gray-50">
@@ -5119,7 +5163,7 @@ async function checkout() {
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
-                            ${sortedProducts.map(product => `
+                            ${filteredProducts.map(product => `
                                 <tr class="hover:bg-gray-50">
                                     <td class="py-4 px-6">
                                         <div class="flex items-center">
@@ -5202,7 +5246,7 @@ async function checkout() {
                 `;
             }
         }
-
+        
         // Edit product
         async function editProduct(productId) {
             if (!supabaseClient) {
@@ -5462,6 +5506,65 @@ async function checkout() {
             });
         }
         
+        // BARU: Terapkan filter produk vendor
+        function applyVendorProductFilters() {
+            loadVendorProductsTable();
+        }
+
+        // BARU: Reset filter produk vendor
+        function resetVendorProductFilters() {
+            document.getElementById('vendorProductSearch').value = '';
+            document.getElementById('vendorProductStockFilter').value = '';
+            document.getElementById('vendorProductActivityFilter').value = '';
+            loadVendorProductsTable();
+        }
+
+        // BARU: Dapatkan produk vendor yang sudah difilter
+        function getFilteredVendorProducts() {
+            if (!currentUser || currentUser.role !== 'vendor') return [];
+
+            const searchTerm = document.getElementById('vendorProductSearch')?.value.toLowerCase() || '';
+            const stockFilter = document.getElementById('vendorProductStockFilter')?.value || '';
+            const activityFilter = document.getElementById('vendorProductActivityFilter')?.value || '';
+            
+            // 1. Dapatkan semua produk milik vendor ini
+            let filteredProducts = products.filter(p => p.category === currentUser.vendor_category);
+            
+            // 2. Filter berdasarkan pencarian
+            if (searchTerm) {
+                filteredProducts = filteredProducts.filter(product =>
+                    (product.name || '').toLowerCase().includes(searchTerm)
+                );
+            }
+
+            // 3. Filter berdasarkan stok
+            if (stockFilter) {
+                filteredProducts = filteredProducts.filter(product => {
+                    const stock = product.stock || 0;
+                    switch (stockFilter) {
+                        case 'available': return stock > 0;
+                        case 'low': return stock > 0 && stock <= 10;
+                        case 'out': return stock === 0;
+                        default: return true;
+                    }
+                });
+            }
+            
+            // 4. Filter berdasarkan status aktif
+            if (activityFilter) {
+                filteredProducts = filteredProducts.filter(product => {
+                    // Anggap produk 'null' (data lama) atau 'active' sebagai 'active'
+                    const productStatus = product.status === 'inactive' ? 'inactive' : 'active';
+                    return productStatus === activityFilter;
+                });
+            }
+            
+            // Urutkan (default terbaru)
+            filteredProducts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            
+            return filteredProducts;
+        }
+
         // Print Order Invoice (REVISED FOR MOBILE COMPATIBILITY)
         function printOrder(orderId) {
             const order = orders.find(o => o.id == orderId);
@@ -5581,11 +5684,11 @@ async function checkout() {
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-600">No. Rekening:</span>
-                            <span class="font-medium text-gray-900 font-mono">332222255</span>
+                            <span class="font-medium text-gray-900 font-mono">7292519928</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-600">Atas Nama:</span>
-                            <span class="font-medium text-gray-900">Masakinaja.com</span>
+                            <span class="font-medium text-gray-900">Irianti Mega</span>
                         </div>
                     </div>
                 </div>
@@ -5746,5 +5849,3 @@ async function checkout() {
     </script>
 </body>
 </html>
-
-
