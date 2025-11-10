@@ -31,7 +31,7 @@
 </head>
 <body class="bg-gray-50 min-h-screen">
     <!-- Header -->
-    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+   <header class="hidden md:block bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <!-- Left Section: Logo, Title, and Role Icons -->
@@ -53,7 +53,7 @@
 
                 <div class="flex items-center space-x-2">
                     <div id="authSection">
-                        <div id="loginSection">
+                        <div id="loginSection" class="hidden">
                             <button onclick="showAuthModal('login')" class="text-gray-600 hover:text-gray-900 mr-4">
                                 <i class="fas fa-sign-in-alt mr-2"></i>Login
                             </button>
@@ -61,7 +61,7 @@
                                 <i class="fas fa-user-plus mr-2"></i>Daftar
                             </button>
                         </div>
-                        <div id="userSection" class="hidden flex items-center space-x-1">
+                        <div id="userSection" class="flex items-center space-x-1">
                             <button onclick="showSection('favorites')" id="favoritesNav" class="nav-btn relative p-2 text-gray-600 hover:text-red-600 rounded-full w-10 h-10 flex items-center justify-center transition-colors" title="Produk Favorit">
                                 <i class="fas fa-heart text-xl"></i>
                                 <span id="favoriteBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
@@ -78,10 +78,6 @@
                                 <button id="userProfileNav" onclick="showSection('userProfile')" class="nav-btn p-2 text-gray-600 hover:text-green-600 rounded-full w-10 h-10 flex items-center justify-center transition-colors" title="Profil Saya">
                                     <i class="fas fa-user text-xl"></i>
                                 </button>
-                                <!-- Tombol Logout (Style disamakan) -->
-                                <button onclick="logout()" class="nav-btn p-2 text-gray-600 hover:text-red-600 rounded-full w-10 h-10 flex items-center justify-center transition-colors" title="Logout">
-                                    <i class="fas fa-sign-out-alt text-xl"></i>
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -94,46 +90,43 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Shopping Section -->
         <section id="shoppingSection" class="section-content">
-            
-            <div class="mt-2 mb-2 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
-                <div class="relative">
-                    <!-- 
-                      'oninput="filterProducts()"' akan memanggil fungsi JS
-                      setiap kali Anda mengetik sesuatu di kotak ini.
-                    -->
-                    <input type="text" id="productSearchInput" oninput="filterProducts()" 
-                           placeholder="Cari nama produk..." 
-                           class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <!-- Ikon pencarian di dalam kotak input -->
-                    <i class="fas fa-search text-gray-400 absolute left-4 top-1/2 -translate-y-1/2"></i>
+                <div class="sticky top-0 md:top-16 z-30 bg-gray-50 pt-2">
+                    <div class="mt-2 mb-2 bg-orange-100 p-2 rounded-xl shadow-sm border border-gray-100">
+                        <div class="relative">
+                            <!-- 
+                            'oninput="filterProducts()"' akan memanggil fungsi JS
+                            setiap kali Anda mengetik sesuatu di kotak ini.
+                            -->
+                            <input type="text" id="productSearchInput" oninput="filterProducts()" 
+                                placeholder="Cari di #WarungMasakin" 
+                                class="w-full px-4 py-2 pl-10 border border-white bg-orange-100 rounded-lg focus:ring-1 focus:ring-orange-500 focus:border-transparent">
+                            <!-- Ikon pencarian di dalam kotak input -->
+                            <i class="fas fa-search text-gray-500 absolute left-4 top-1/2 -translate-y-1/2"></i>
+                        </div>
+                    </div>
                 </div>
-            </div>
             
-            <!-- Type Filter -->
-            <div class="mb-2 flex items-center space-x-2 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
-                <label for="typeFilterSelect" class="text-md font-medium text-gray-700 flex-shrink-0">
-                    <i class="fas fa-filter mr-2"></i>Pilih Tipe:
-                </label>
-                <select id="typeFilterSelect" onchange="filterByType(this.value)" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
-                    <!-- Pilihan tipe akan dimuat di sini oleh JavaScript -->
-                </select>
-            </div>
+                <!-- Type Filter -->
+                <div class="mb-2 flex items-center space-x-2 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
+                    <label for="typeFilterSelect" class="text-md font-medium text-gray-700 flex-shrink-0">
+                        <i class="fas fa-filter mr-2"></i>Pilih Tipe:
+                    </label>
+                    <select id="typeFilterSelect" onchange="filterByType(this.value)" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                            <!-- Pilihan tipe akan dimuat di sini oleh JavaScript -->
+                    </select>
+                </div>
 
-            <!-- Products Grid -->
-            <div id="productsGrid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                <!-- Products will be loaded here -->
-            </div>
+                <!-- Products Grid -->
+                <div id="productsGrid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <!-- Products will be loaded here -->
+                </div>
+            
         </section>
 
         <!-- Cart Section -->
         <section id="cartSection" class="section-content hidden">
-            <button onclick="showSection('shopping')" 
-                        class="fixed top-20 left-4 sm:left-6 lg:left-8 z-50 bg-yellow-400 w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:text-blue-600 hover:bg-yellow-300 transition-all transform hover:scale-110 focus:outline-none"
-                        title="Kembali ke Daftar Produk">
-                        <i class="fas fa-arrow-left text-xl"></i>
-            </button>
             <div class="max-w-4xl mx-auto">
-                <div class="flex items-center justify-end mb-8">
+                <div class="flex items-center justify-end mb-8 mt-4">
                     <h2 class="text-lg font-bold text-gray-900">Keranjang Belanja</h2>
                 </div>
                 <div id="cartContent">
@@ -144,13 +137,8 @@
 
         <!-- Customer Orders Section -->
         <section id="ordersSection" class="section-content hidden">
-            <button onclick="showSection('shopping')" 
-                        class="fixed top-20 left-4 sm:left-6 lg:left-8 z-50 bg-yellow-400 w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:text-blue-600 hover:bg-yellow-300 transition-all transform hover:scale-110 focus:outline-none"
-                        title="Kembali ke Daftar Produk">
-                        <i class="fas fa-arrow-left text-xl"></i>
-            </button>
             <div class="max-w-6xl mx-auto">
-                <div class="flex items-center justify-end mb-8">
+                <div class="flex items-center justify-end mb-8 mt-4">
                     <h2 class="text-lg font-bold text-gray-900">Riwayat Pesanan Saya</h2>
                 </div>
                 <div id="customerOrdersContent">
@@ -161,14 +149,8 @@
 
         <!-- Favorites Section -->
         <section id="favoritesSection" class="section-content hidden">
-            <!-- Floating Back Button -->
-            <button onclick="showSection('shopping')"
-                    class="fixed top-20 left-4 sm:left-6 lg:left-8 z-50 bg-yellow-400 w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:text-blue-600 hover:bg-yellow-300 transition-all transform hover:scale-110 focus:outline-none"
-                    title="Kembali ke Daftar Produk">
-                <i class="fas fa-arrow-left text-xl"></i>
-            </button>
             <div class="max-w-6xl mx-auto">
-                <div class="flex items-center justify-end mb-8">
+                <div class="flex items-center justify-end mb-8 mt-4">
                     <h2 class="text-lg font-bold text-gray-900">Produk Favorit</h2>
                 </div>
                 <div id="favoritesContent" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -179,9 +161,8 @@
 
         <!-- User Profile Section -->
         <section id="userProfileSection" class="section-content hidden">
-            <!-- Floating Back Button -->
             <div class="max-w-2xl mx-auto">
-                <div class="flex items-center justify-start mb-8">
+                <div class="flex items-center justify-start mb-8 mt-4">
                     <h2 class="text-2xl font-bold text-gray-900">Profil Saya</h2>
                 </div>
                 <div id="userProfileContent">
@@ -195,7 +176,7 @@
         <section id="productDetailSection" class="section-content hidden">
             <!-- Floating Back Button -->
             <button onclick="showSection('shopping')" 
-                    class="fixed top-20 left-4 sm:left-6 lg:left-8 z-50 bg-yellow-400 w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:text-blue-600 hover:bg-yellow-300 transition-all transform hover:scale-110 focus:outline-none"
+                    class="fixed top-10 left-4 sm:left-6 lg:left-8 z-50 bg-yellow-400 w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:text-blue-600 hover:bg-yellow-300 transition-all transform hover:scale-110 focus:outline-none"
                     title="Kembali ke Daftar Produk">
                 <i class="fas fa-arrow-left text-xl"></i>
             </button>
@@ -210,7 +191,7 @@
         <!-- Vendor Section -->
         <section id="vendorSection" class="section-content hidden">
             <div class="mb-8">
-                <h2 class="text-lg font-bold text-gray-900 mb-6">Panel Vendor - <span id="vendorCategoryName" class="text-blue-600"></span></h2>
+                <h2 class="text-lg font-bold text-gray-900 mb-6 mt-4">Panel Vendor - <span id="vendorCategoryName" class="text-blue-600"></span></h2>
                 
                 <!-- Vendor Stats -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -309,7 +290,7 @@
         <!-- Vendor Products Section -->
         <section id="vendorProductsSection" class="section-content hidden">
             <div class="mb-8">
-                <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center justify-between mb-6 mt-4">
                     <div>
                         <h2 class="text-lg font-bold text-gray-900">Kelola Produk - <span id="vendorProductsCategoryName" class="text-blue-600"></span></h2>
                         <p class="text-gray-600 mt-1">Kelola semua produk dalam kategori Anda</p>
@@ -449,7 +430,7 @@
         <!-- Admin Products Section -->
         <section id="adminProductsSection" class="section-content hidden">
             <div class="mb-8">
-                <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center justify-between mb-6 mt-4">
                     <div>
                         <h2 class="text-lg font-bold text-gray-900">Semua Produk</h2>
                         <p class="text-gray-600 mt-1">Daftar semua produk dari seluruh vendor</p>
@@ -529,7 +510,7 @@
         <!-- Vendors Management Section -->
         <section id="vendorsSection" class="section-content hidden">
             <div class="mb-8">
-                <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center justify-between mb-6 mt-4">
                     <div>
                         <h2 class="text-lg font-bold text-gray-900">Kelola Vendor</h2>
                         <p class="text-gray-600 mt-1">Kelola semua vendor yang terdaftar di platform</p>
@@ -653,7 +634,7 @@
         <!-- Admin Section -->
         <section id="adminSection" class="section-content hidden">
             <div class="mb-8">
-                <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center justify-between mb-6 mt-4">
                     <h2 class="text-lg font-bold text-gray-900">Panel Admin</h2>
                     <button onclick="showSection('kasir')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
                         <i class="fas fa-cash-register mr-2"></i>Buka Kasir
@@ -793,7 +774,7 @@
         </section>
         <section id="adminSalesSummarySection" class="section-content hidden">
             <div class="max-w-4xl mx-auto">
-                <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center justify-between mb-8 mt-4">
                     <div>
                         <h2 class="text-lg font-bold text-gray-900">Rekapitulasi Item Terjual</h2>
                         <p class="text-gray-600 mt-1">Total semua item yang terjual (tidak termasuk yang dibatalkan).</p>
@@ -852,7 +833,12 @@
         </section>
 
         <!-- Kasir Iframe Section -->
-        <section id="kasirSection" class="section-content hidden">          
+        <section id="kasirSection" class="section-content hidden mt-4">          
+            <div class="flex items-center justify-between mb-4">
+                    <button onclick="showSection('admin')" class="text-blue-600 hover:text-blue-800 font-medium">
+                        <i class="fas fa-arrow-left mr-2"></i>Kembali ke Panel Admin
+                    </button>
+                </div>
             <!-- Iframe for Kasir App -->
             <div class="w-full h-[80vh] bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
                 <iframe src="https://ryumedia.github.io/kasirwarungmasakin/" 
@@ -862,7 +848,50 @@
             </div>
         </section>
 
+        <!-- Padding di bagian bawah untuk footer (hanya di mobile) -->
+        <div class="h-24 md:hidden"></div>
+
     </main>
+
+    <!-- Footer Navigation (Mobile Only) -->
+    <nav id="footerNav" class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.05)] border-t border-gray-200">
+        <div class="flex justify-around items-center px-2 py-1">
+    
+            <!-- 1. Favorit -->
+            <button onclick="showSection('favorites')" id="footerFavoritesNav" 
+                    class="footer-nav-btn flex flex-col items-center justify-center w-1/5 text-gray-600 hover:text-red-600 transition-colors">
+                <i class="fas fa-heart text-xl mb-1"></i>
+            </button>
+    
+            <!-- 2. Keranjang -->
+            <button onclick="showSection('cart')" id="footerCartNav" 
+                    class="footer-nav-btn relative flex flex-col items-center justify-center w-1/5 text-gray-600 hover:text-yellow-600 transition-colors">
+                <i class="fas fa-shopping-cart text-xl mb-1"></i>
+                <!-- Badge (mirip dengan di header) -->
+                <span id="footerCartBadge" class="absolute top-0 right-2 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center hidden">0</span>
+            </button>
+    
+            <!-- 3. Home (Prominent) -->
+            <button onclick="showSection('shopping')" id="footerHomeNav" 
+                    class="footer-nav-btn relative -top-5 w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg flex items-center justify-center transform transition-transform hover:scale-105"
+                    title="Home">
+                <i class="fas fa-store text-2xl"></i>
+            </button>
+    
+            <!-- 4. Riwayat Pesanan -->
+            <button onclick="showSection('orders')" id="footerOrdersNav" 
+                    class="footer-nav-btn flex flex-col items-center justify-center w-1/5 text-gray-600 hover:text-purple-600 transition-colors">
+                <i class="fas fa-receipt text-xl mb-1"></i>
+            </button>
+    
+            <!-- 5. Profil -->
+            <button onclick="showSection('userProfile')" id="footerProfileNav" 
+                    class="footer-nav-btn flex flex-col items-center justify-center w-1/5 text-gray-600 hover:text-green-600 transition-colors">
+                <i class="fas fa-user text-xl mb-1"></i>
+            </button>
+    
+        </div>
+    </nav>
     
     <!-- Scroll to Top Button -->
     <button id="scrollToTopBtn" 
@@ -1864,8 +1893,8 @@
             }
             // Hide all sections
             document.querySelectorAll('.section-content').forEach(s => s.classList.add('hidden'));
-            
-            // Update navigation
+
+            // --- LOGIKA HEADER NAV ---
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove(
                     'text-blue-600', 'bg-blue-50', 
@@ -1877,47 +1906,92 @@
                 );
                 btn.classList.add('text-gray-600');
             });
-            
+
+            // ▼▼▼ AWAL BLOK BARU (Reset Tombol Footer) ▼▼▼
+            document.querySelectorAll('.footer-nav-btn').forEach(btn => {
+                btn.classList.remove(
+                    'text-red-600', 
+                    'text-yellow-600', 
+                    'text-purple-600',
+                    'text-green-600',
+                    'text-blue-600'
+                );
+                btn.classList.add('text-gray-600');
+
+                // Khusus tombol home, kembalikan ke style default
+                if(btn.id === 'footerHomeNav') {
+                    btn.classList.remove('ring-4', 'ring-blue-200'); // Hapus style aktif home
+                }
+            });
+            // ▲▲▲ AKHIR BLOK BARU ▲▲▲
+
             // Show selected section
             document.getElementById(section + 'Section').classList.remove('hidden');
-            
-            // Highlight the active navigation icon/button
+
+            // --- LOGIKA HIGHLIGHT HEADER NAV ---
             if (document.getElementById(section + 'Nav')) {
                 const navButton = document.getElementById(section + 'Nav');
                 navButton.classList.remove('text-gray-600');
-                
-            // Apply active state styles based on the section
+
                 switch (section) {
                     case 'admin':
                     case 'vendor':
-                        // Biru untuk Admin & Vendor
                         navButton.classList.add('text-blue-600', 'bg-blue-50');
                         break;
                     case 'favorites':
-                        // Merah untuk Favorit
                         navButton.classList.add('text-red-600', 'bg-red-50');
                         break;
                     case 'cart':
-                        // Kuning/Oranye untuk Keranjang
                         navButton.classList.add('text-yellow-600', 'bg-yellow-50');
                         break;
                     case 'orders':
-                        // Ungu untuk Riwayat Pesanan
                         navButton.classList.add('text-purple-600', 'bg-purple-50');
                         break;
                     case 'userProfile':
-                        // Hijau untuk Profil
                         navButton.classList.add('text-green-600', 'bg-green-50');
                         break;    
                     default:
-                        // Fallback untuk tombol lain (jika ada)
                         navButton.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
                         break;
                 }
-
             }
-            
+
+            // ▼▼▼ AWAL BLOK BARU (Highlight Tombol Footer) ▼▼▼
+            let activeFooterBtnId;
+            if (section === 'shopping') {
+                activeFooterBtnId = 'footerHomeNav';
+            } else if (section === 'favorites') {
+                activeFooterBtnId = 'footerFavoritesNav';
+            } else if (section === 'cart') {
+                activeFooterBtnId = 'footerCartNav';
+            } else if (section === 'orders') {
+                activeFooterBtnId = 'footerOrdersNav';
+            } else if (section === 'userProfile') {
+                activeFooterBtnId = 'footerProfileNav';
+            }
+
+            if (activeFooterBtnId && document.getElementById(activeFooterBtnId)) {
+                const footerButton = document.getElementById(activeFooterBtnId);
+                footerButton.classList.remove('text-gray-600');
+
+                // Terapkan style aktif
+                if (section === 'shopping') {
+                    // Tombol Home (prominent)
+                    footerButton.classList.add('ring-4', 'ring-blue-200'); // Efek glow
+                } else if (section === 'favorites') {
+                    footerButton.classList.add('text-red-600');
+                } else if (section === 'cart') {
+                    footerButton.classList.add('text-yellow-600');
+                } else if (section === 'orders') {
+                    footerButton.classList.add('text-purple-600');
+                } else if (section === 'userProfile') {
+                    footerButton.classList.add('text-green-600');
+                }
+            }
+            // ▲▲▲ AKHIR BLOK BARU ▲▲▲
+
             // Load section-specific data
+            // ... (sisa fungsi biarkan seperti aslinya) ...
             if (section === 'cart') {
                 renderCart();
             } else if (section === 'admin') {
@@ -1936,13 +2010,12 @@
                 loadAdminVendorFilters('summaryVendorFilter');
                 loadAdminSalesSummary();
             } else if (section === 'productDetail') {
-                // Tidak perlu load data khusus di sini, sudah ditangani showProductDetail()
                 document.getElementById('productDetailSection').classList.remove('hidden');   
             } else if (section === 'favorites') {
-                renderFavorites(); // Panggil fungsi render
+                renderFavorites();
                 document.getElementById('favoritesSection').classList.remove('hidden');
             } else if (section === 'userProfile') {
-                loadUserProfile(); // Panggil fungsi baru untuk memuat data profil
+                loadUserProfile();
                 document.getElementById('userProfileSection').classList.remove('hidden');
             } else if (section === 'kasir') {
                 document.getElementById('kasirSection').classList.remove('hidden');     
@@ -3108,16 +3181,29 @@
 
         // Update cart badge
         function updateCartBadge() {
-            const badge = document.getElementById('cartBadge');
-            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-            
-            if (totalItems > 0) {
-                badge.textContent = totalItems;
-                badge.classList.remove('hidden');
-                badge.classList.add('cart-badge');
-            } else {
-                badge.classList.add('hidden');
-            }
+        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+            // Fungsi helper untuk memperbarui elemen badge
+            const updateBadge = (badgeElement, isHeader = false) => {
+                if (!badgeElement) return; // Lewati jika badge tidak ada
+
+                if (totalItems > 0) {
+                    badgeElement.textContent = totalItems;
+                    badgeElement.classList.remove('hidden');
+                    // Terapkan animasi hanya ke header badge
+                    if (isHeader) {
+                        badgeElement.classList.add('cart-badge');
+                    }
+                } else {
+                    badgeElement.classList.add('hidden');
+                    if (isHeader) {
+                        badgeElement.classList.remove('cart-badge'); // Hapus animasi jika kosong
+                    }
+                }
+            };
+            // Panggil fungsi untuk kedua badge
+            updateBadge(document.getElementById('cartBadge'), true); // true = isHeader
+            updateBadge(document.getElementById('footerCartBadge'), false); // false = not header
         }
 
         // Update favorite badge
@@ -3286,6 +3372,30 @@
                 return;
             }
 
+            // --- ▼▼▼ BAGIAN BARU DIMULAI DI SINI ▼▼▼ ---
+            // Buat HTML untuk tombol role (admin/vendor)
+            let roleButtonsHTML = '';
+            if (currentUser.role === 'admin') {
+                roleButtonsHTML = `
+                    <div class="mt-2"> <!-- Beri jarak dari email -->
+                        <button onclick="showSection('admin')" 
+                                class="w-full text-sm bg-blue-100 text-blue-800 font-medium px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors flex items-center justify-center">
+                            <i class="fas fa-cog mr-2"></i>Buka Panel Admin
+                        </button>
+                    </div>
+                `;
+            } else if (currentUser.role === 'vendor') {
+                roleButtonsHTML = `
+                    <div class="mt-2"> <!-- Beri jarak dari email -->
+                        <button onclick="showSection('vendor')" 
+                                class="w-full text-sm bg-green-100 text-green-800 font-medium px-4 py-2 rounded-lg hover:bg-green-200 transition-colors flex items-center justify-center">
+                            <i class="fas fa-store mr-2"></i>Buka Panel Vendor
+                        </button>
+                    </div>
+                `;
+            }
+            // --- ▲▲▲ BAGIAN BARU SELESAI ▲▲▲ ---
+
             // Hitung total belanja
             const totalSpending = calculateTotalSpending();
 
@@ -3306,6 +3416,10 @@
                                 <div>
                                     <h3 class="text-2xl font-bold text-gray-900">${currentUser.name}</h3>
                                     <p class="text-sm text-gray-500">${currentUser.email}</p>
+                                    
+                                    <!-- ▼▼▼ TOMBOL BARU DITAMPILKAN DI SINI ▼▼▼ -->
+                                    ${roleButtonsHTML}
+                                    <!-- ▲▲▲ AKHIR TOMBOL BARU ▲▲▲ -->
                                 </div>
                             </div>
                             <!-- Grup Kanan: Tombol Edit -->
@@ -3338,6 +3452,12 @@
                         </div>
                     </div>
                 </div>
+                <div class="mt-6">
+                        <button onclick="logout()" 
+                                class="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-3 rounded-lg font-medium hover:from-red-600 hover:to-red-700 transition-all transform hover:scale-105">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        </button>
+                    </div>
             `;
         }
 
@@ -5849,4 +5969,3 @@ async function checkout() {
     </script>
 </body>
 </html>
-
