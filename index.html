@@ -5887,7 +5887,7 @@ async function checkout() {
             existingNotifications.forEach(n => n.remove());
             
             const notification = document.createElement('div');
-            notification.className = `notification fixed bottom-4 right-4 px-6 py-4 rounded-lg shadow-lg z-50 max-w-sm ${
+            notification.className = `notification fixed bottom-4 right-4 px-4 py-2 rounded-lg shadow-lg z-50 max-w-xs ${
                 type === 'success' ? 'bg-green-500 text-white' :
                 type === 'error' ? 'bg-red-500 text-white' :
                 type === 'warning' ? 'bg-yellow-500 text-white' :
@@ -5918,7 +5918,7 @@ async function checkout() {
                 if (notification.parentElement) {
                     notification.remove();
                 }
-            }, 5000);
+            }, 2000);
         }
 
         // Show confirmation modal (replacement for confirm())
