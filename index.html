@@ -1044,6 +1044,70 @@
         </div>
     </div>
 
+    <!-- Edit Order Modal -->
+    <div id="editOrderModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="text-center mb-6">
+                    <div class="mx-auto w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-edit text-white text-2xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900">Edit Pesanan</h2>
+                </div>
+
+                <form id="editOrderForm" class="space-y-4">
+                    <input type="hidden" id="editOrderId">
+                    
+                    <!-- Info Pesanan (Read-only) -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ID Pesanan</label>
+                            <input type="text" id="editOrderIdDisplay" readonly class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nama Customer</label>
+                            <input type="text" id="editOrderCustomerName" readonly class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Total Asli</label>
+                            <input type="text" id="editOrderOriginalTotal" readonly class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500">
+                        </div>
+                    </div>
+
+                    <!-- Item yang Dapat Diedit -->
+                    <div>
+                        <label class="block text-lg font-semibold text-gray-700 mb-2">Item Pesanan</label>
+                        <p class="text-xs text-gray-500 mb-3">Anda hanya dapat mengurangi jumlah item atau menghapusnya (set ke 0). Stok akan dikembalikan secara otomatis.</p>
+                        <div id="editOrderItemsContainer" class="space-y-3 max-h-60 overflow-y-auto p-4 bg-gray-50 rounded-lg border">
+                            <!-- Item akan dimuat di sini oleh JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <!-- Total Baru (Dihitung Otomatis) -->
+                    <div class="pt-4 border-t">
+                        <label class="block text-lg font-bold text-gray-700">Total Baru:</label>
+                        <p id="editOrderNewTotal" class="text-3xl font-bold text-blue-600">Rp 0</p>
+                    </div>
+
+                    <div class="flex space-x-3 pt-4">
+                        <button type="submit" 
+                                class="flex-1 bg-gradient-to-r from-green-500 to-blue-600 text-white py-3 rounded-lg font-medium hover:from-green-600 hover:to-blue-700 transition-all">
+                            <i class="fas fa-save mr-2"></i>Simpan Perubahan
+                        </button>
+                        <button type="button" onclick="hideEditOrderModal()" 
+                                class="flex-1 bg-gray-600 text-white py-3 rounded-lg font-medium hover:bg-gray-700 transition-all">
+                            <i class="fas fa-times mr-2"></i>Batal
+                        </button>
+                    </div>
+                </form>
+
+                <button onclick="hideEditOrderModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // KONFIGURASI SUPABASE (GANTI DENGAN KREDENSIAL ANDA)
         const SUPABASE_URL = "https://drfdjznyikcsercajaek.supabase.co";
@@ -1657,6 +1721,20 @@
                 updateUIForUser();
                 await loadUserFavorites();
                 updateFavoriteBadge();
+
+                // ▼▼▼ KODE PERBAIKAN DIMULAI DI SINI ▼▼▼
+                // Refresh section yang sedang aktif (Profil, Favorit, Pesanan, atau Keranjang)
+                if (!document.getElementById('userProfileSection').classList.contains('hidden')) {
+                    loadUserProfile();
+                } else if (!document.getElementById('favoritesSection').classList.contains('hidden')) {
+                    renderFavorites();
+                } else if (!document.getElementById('ordersSection').classList.contains('hidden')) {
+                    loadCustomerOrders();
+                } else if (!document.getElementById('cartSection').classList.contains('hidden')) {
+                    renderCart();
+                }
+                // ▲▲▲ KODE PERBAIKAN SELESAI ▲▲▲
+
                 hideAuthModal();
                 showNotification('Login berhasil!', 'success');
                 
@@ -1754,13 +1832,31 @@
                             email: email,
                             name: fullName,
                             role: role,
-                            vendor_category: null
+                            vendor_category: null,
+                            // Tambahkan ini agar data langsung konsisten
+                            phone_number: phoneNumber,
+                            photo_url: null 
                         };
                         
                         // Check if email confirmation is required
                         if (data.session) {
                             // User is immediately logged in (email confirmation disabled)
                             updateUIForUser();
+                            await loadUserFavorites(); // Muat favorit untuk user baru
+                            updateFavoriteBadge();
+
+                            // ▼▼▼ KODE PERBAIKAN DIMULAI DI SINI ▼▼▼
+                            if (!document.getElementById('userProfileSection').classList.contains('hidden')) {
+                                loadUserProfile();
+                            } else if (!document.getElementById('favoritesSection').classList.contains('hidden')) {
+                                renderFavorites();
+                            } else if (!document.getElementById('ordersSection').classList.contains('hidden')) {
+                                loadCustomerOrders();
+                            } else if (!document.getElementById('cartSection').classList.contains('hidden')) {
+                                renderCart();
+                            }
+                            // ▲▲▲ KODE PERBAIKAN SELESAI ▲▲▲
+
                             showNotification('Registrasi berhasil! Anda sudah login.', 'success');
                         } else {
                             // Email confirmation required
@@ -2790,7 +2886,22 @@
                             
                             return `
                             <tr class="hover:bg-gray-50">
-                                <td class="py-4 px-6 font-mono text-sm">#${order.id}</td>
+                                <td class="py-4 px-6">
+                                    <p class="font-mono text-sm font-medium">#${order.id}</p>
+                                    
+                                    <!-- ▼▼▼ TOMBOL EDIT/DELETE BARU ▼▼▼ -->
+                                    <div class="flex space-x-2 mt-2">
+                                        <button onclick="showEditOrderModal('${order.id}')" 
+                                                class="text-blue-600 hover:text-blue-800 transition-colors" title="Edit Item Pesanan">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button onclick="deleteOrderAdmin('${order.id}', '#${order.id}')" 
+                                                class="text-red-600 hover:text-red-800 transition-colors" title="Hapus Pesanan">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                    <!-- ▲▲▲ AKHIR TOMBOL BARU ▲▲▲ -->
+                                </td>
                                 <td class="py-4 px-6">
                                     <div>
                                         <p class="font-medium text-gray-900">${order.customer_name || 'Customer'}</p>
@@ -2836,11 +2947,11 @@
                                     </div>
                                 </td>
                                 <td class="py-4 px-6">
-    <p class="text-sm font-medium text-gray-900">${getPaymentMethodText(order.payment_method || 'cash')}</p>
-    <span class="px-2 py-0.5 mt-1 inline-block rounded-full text-xs font-medium ${getPaymentStatusTextAndClass(order.payment_status).class}">
-        ${getPaymentStatusTextAndClass(order.payment_status).text}
-    </span>
-</td>
+                                    <p class="text-sm font-medium text-gray-900">${getPaymentMethodText(order.payment_method || 'cash')}</p>
+                                    <span class="px-2 py-0.5 mt-1 inline-block rounded-full text-xs font-medium ${getPaymentStatusTextAndClass(order.payment_status).class}">
+                                        ${getPaymentStatusTextAndClass(order.payment_status).text}
+                                    </span>
+                                </td>
                                 <td class="py-4 px-6">
                                     <div class="flex flex-col space-y-1">
                                         <button onclick="updateOrderStatusAdmin('${order.id}', 'processing')" 
@@ -5755,6 +5866,7 @@ async function checkout() {
                             <p>Jazakallahu Khoiron Katsiiro</p>
                         </div>
                     </div>
+
                 </body>
                 </html>
             `;
@@ -5952,6 +6064,7 @@ async function checkout() {
                 </div>
             `;
             document.body.insertAdjacentHTML('beforeend', modalHTML);
+
             document.getElementById('confirmBtn').onclick = () => {
                 onConfirm();
                 hideConfirmationModal();
@@ -5965,6 +6078,309 @@ async function checkout() {
                 modal.remove();
             }
         }
+
+        // Menampilkan modal edit pesanan
+        function showEditOrderModal(orderId) {
+                    const modal = document.getElementById('editOrderModal');
+                    if (!modal) return;
+
+                    const order = orders.find(o => o.id == orderId);
+                    if (!order) {
+                        showNotification('Pesanan tidak ditemukan', 'error');
+                        return;
+                    }
+
+                    // Isi info dasar (read-only)
+                    document.getElementById('editOrderId').value = order.id;
+                    document.getElementById('editOrderIdDisplay').value = `#${order.id}`;
+                    document.getElementById('editOrderCustomerName').value = order.customer_name || 'Customer';
+                    document.getElementById('editOrderOriginalTotal').value = `Rp ${formatPrice(order.total || order.total_amount || 0)}`;
+                    
+                    // --- ▼▼▼ UBAH PESAN INFO DI BAWAH INI ▼▼▼ ---
+                    const infoText = modal.querySelector('p.text-xs.text-gray-500');
+                    if (infoText) {
+                        infoText.textContent = 'Anda dapat menambah (sesuai stok) atau mengurangi jumlah item. Stok akan disesuaikan secara otomatis.';
+                    }
+                    // --- ▲▲▲ AKHIR PERUBAHAN PESAN ▲▲▲ ---
+
+                    // Tampilkan item-item
+                    const itemsContainer = document.getElementById('editOrderItemsContainer');
+                    itemsContainer.innerHTML = ''; // Kosongkan dulu
+
+                    const orderItems = order.items || [];
+                    if (orderItems.length === 0) {
+                        itemsContainer.innerHTML = '<p class="text-gray-500 text-center">Pesanan ini tidak memiliki item.</p>';
+                    } else {
+                        orderItems.forEach(item => {
+                            // --- ▼▼▼ LOGIKA BARU UNTUK CEK STOK & MAX ▼▼▼ ---
+                            const product = products.find(p => p.id == item.product_id);
+                            // (product.stock || 0) adalah sisa stok di toko
+                            // (item.quantity || 0) adalah jumlah yang sudah dipesan
+                            const currentStock = product ? (product.stock || 0) : 0; 
+                            const maxAllowed = (item.quantity || 0) + currentStock;
+                            // --- ▲▲▲ AKHIR LOGIKA BARU ▲▲▲ ---
+
+                            const itemHTML = `
+                                <!-- ▼▼▼ TAMBAHKAN data-current-stock ▼▼▼ -->
+                                <div class="flex items-center space-x-3 p-3 bg-white rounded-lg border edit-order-item" 
+                                    data-product-id="${item.product_id}" 
+                                    data-original-quantity="${item.quantity}" 
+                                    data-price-per-item="${item.price}"
+                                    data-current-stock="${currentStock}"> 
+                                    
+                                    <div class="flex-1">
+                                        <p class="font-medium text-gray-900">${item.product_name}</p>
+                                        <p class="text-sm text-gray-500">@ Rp ${formatPrice(item.price)}</p>
+                                        <!-- Info Stok Tambahan -->
+                                        <p class="text-xs text-blue-600 mt-1">Sisa stok di toko: ${currentStock}</p>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <label class="text-sm font-medium">Qty:</label>
+                                        <input type="number" 
+                                            class="w-20 px-3 py-1 border border-gray-300 rounded-lg text-center item-quantity-input" 
+                                            value="${item.quantity}" 
+                                            min="0" 
+                                            max="${maxAllowed}"
+                                            oninput="calculateNewTotal()">
+                                    </div>
+                                </div>
+                            `;
+                            itemsContainer.insertAdjacentHTML('beforeend', itemHTML);
+                        });
+                    }
+
+                    // Pasang event listener ke form
+                    document.getElementById('editOrderForm').onsubmit = handleEditOrder;
+
+                    // Hitung total baru saat modal dibuka
+                    calculateNewTotal();
+
+                    // Tampilkan modal
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                }
+
+        // Menghitung total baru di modal edit secara dinamis
+        function calculateNewTotal() {
+            const itemRows = document.querySelectorAll('.edit-order-item');
+            let newTotal = 0;
+
+            itemRows.forEach(row => {
+                const pricePerItem = parseFloat(row.dataset.pricePerItem);
+                const newQuantityInput = row.querySelector('.item-quantity-input');
+                let newQuantity = parseInt(newQuantityInput.value);
+                const maxQuantity = parseInt(newQuantityInput.max);
+
+                // Validasi input
+                if (isNaN(newQuantity) || newQuantity < 0) {
+                    newQuantity = 0;
+                    newQuantityInput.value = 0;
+                }
+                if (newQuantity > maxQuantity) {
+                    newQuantity = maxQuantity;
+                    newQuantityInput.value = maxQuantity;
+                }
+
+                newTotal += pricePerItem * newQuantity;
+            });
+
+            document.getElementById('editOrderNewTotal').textContent = `Rp ${formatPrice(newTotal)}`;
+        }
+
+        // Menyembunyikan modal edit pesanan
+        function hideEditOrderModal() {
+            const modal = document.getElementById('editOrderModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.getElementById('editOrderForm').reset();
+                document.getElementById('editOrderItemsContainer').innerHTML = '';
+            }
+        }
+
+        // Menangani submit form edit pesanan
+        async function handleEditOrder(e) {
+                    e.preventDefault();
+                    if (!supabaseClient) return;
+
+                    const orderId = document.getElementById('editOrderId').value;
+                    const originalOrder = orders.find(o => o.id == orderId);
+                    if (!originalOrder) {
+                        showNotification('Pesanan tidak ditemukan', 'error');
+                        return;
+                    }
+
+                    const submitBtn = e.target.querySelector('button[type="submit"]');
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Menyimpan...';
+
+                    const itemRows = document.querySelectorAll('.edit-order-item');
+                    const newItems = [];
+                    const stockAdjustments = []; // [ { productId, adjustment } ]
+                    let newTotal = 0;
+
+                    try {
+                        // 1. Bangun array item baru dan hitung penyesuaian stok
+                        itemRows.forEach(row => {
+                            const productId = row.dataset.productId;
+                            const originalQuantity = parseInt(row.dataset.originalQuantity);
+                            const pricePerItem = parseFloat(row.dataset.pricePerItem);
+                            const newQuantity = parseInt(row.querySelector('.item-quantity-input').value);
+
+                            // Cari item asli dari pesanan
+                            const originalItem = originalOrder.items.find(i => i.product_id == productId);
+
+                            if (newQuantity > 0) {
+                                newItems.push({
+                                    ...originalItem, // Pertahankan semua data (nama, kategori, dll)
+                                    quantity: newQuantity,
+                                    price: pricePerItem
+                                });
+                                newTotal += pricePerItem * newQuantity;
+                            }
+
+                            // --- ▼▼▼ UBAH BLOK LOGIKA INI ▼▼▼ ---
+                            // Hitung selisih stok
+                            const quantityDifference = originalQuantity - newQuantity;
+                            
+                            if (quantityDifference !== 0) {
+                                // Cek jika kita mengambil stok (menambah item)
+                                if (quantityDifference < 0) { // e.g., 5 -> 8, diff = -3 (mengambil 3)
+                                    const stockToTake = Math.abs(quantityDifference);
+                                    const currentStock = parseInt(row.dataset.currentStock); // Ambil sisa stok
+
+                                    if (stockToTake > currentStock) {
+                                        // Ini akan menghentikan proses dan masuk ke blok catch
+                                        throw new Error(`Stok tidak cukup untuk ${originalItem.product_name}. Sisa stok: ${currentStock}.`);
+                                    }
+                                }
+                                
+                                // Jika lolos cek, atau jika kita mengembalikan stok (quantityDifference > 0)
+                                stockAdjustments.push({ productId: productId, adjustment: quantityDifference });
+                            }
+                            // --- ▲▲▲ AKHIR BLOK PERUBAHAN ▲▲▲ ---
+                        });
+
+                        // 2. Update pesanan di Supabase
+                        const { error: orderError } = await supabaseClient
+                            .from('orders')
+                            .update({
+                                items: newItems,
+                                total: newTotal,
+                                total_amount: newTotal,
+                                updated_at: new Date().toISOString()
+                            })
+                            .eq('id', orderId);
+
+                        if (orderError) throw orderError;
+
+                        // 3. Update stok produk di Supabase (jika ada penyesuaian)
+                        for (const adj of stockAdjustments) {
+                            const product = products.find(p => p.id == adj.productId);
+                            if (product) {
+                                // Logika ini sudah benar: 
+                                // Stok 10, adj.adjustment = 3 (mengembalikan 3) -> newStock = 13
+                                // Stok 10, adj.adjustment = -2 (mengambil 2) -> newStock = 8
+                                const newStock = (product.stock || 0) + adj.adjustment; 
+                                
+                                const { error: stockError } = await supabaseClient
+                                    .from('products')
+                                    .update({ stock: newStock })
+                                    .eq('id', adj.productId);
+
+                                if (stockError) throw stockError;
+
+                                // Update stok lokal
+                                product.stock = newStock;
+                            }
+                        }
+
+                        // 4. Update data lokal & UI
+                        originalOrder.items = newItems;
+                        originalOrder.total = newTotal;
+                        originalOrder.total_amount = newTotal;
+
+                        hideEditOrderModal();
+                        showNotification('Pesanan berhasil diperbarui!', 'success');
+                        renderAdminOrders(); // Muat ulang tabel admin
+                        renderProducts(); // Muat ulang produk (karena stok berubah)
+
+                    } catch (error) {
+                        console.error('Error updating order:', error);
+                        // Tampilkan pesan error (termasuk error stok kustom kita)
+                        showNotification('Gagal memperbarui: ' + error.message, 'error');
+                    } finally {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fas fa-save mr-2"></i>Simpan Perubahan';
+                    }
+                }
+
+        // Menghapus pesanan (Admin)
+        async function deleteOrderAdmin(orderId, orderDisplayName) {
+            showConfirmationModal(`Apakah Anda yakin ingin menghapus pesanan ${orderDisplayName}?<br><br>Stok untuk semua item dalam pesanan ini akan dikembalikan.`, async () => {
+                if (!supabaseClient) {
+                    showNotification('Koneksi database tidak tersedia', 'error');
+                    return;
+                }
+
+                const orderToDelete = orders.find(o => o.id == orderId);
+                if (!orderToDelete) {
+                    showNotification('Pesanan tidak ditemukan', 'error');
+                    return;
+                }
+
+                // Hanya kembalikan stok jika pesanan BUKAN 'cancelled'
+                // (Kita anggap pesanan 'cancelled' stoknya sudah dikembalikan)
+                const shouldReturnStock = orderToDelete.status !== 'cancelled';
+                const stockAdjustments = [];
+
+                if (shouldReturnStock) {
+                    (orderToDelete.items || []).forEach(item => {
+                        stockAdjustments.push({ productId: item.product_id, adjustment: item.quantity });
+                    });
+                }
+
+                try {
+                    // 1. Hapus pesanan dari Supabase
+                    const { error: deleteError } = await supabaseClient
+                        .from('orders')
+                        .delete()
+                        .eq('id', orderId);
+
+                    if (deleteError) throw deleteError;
+
+                    // 2. Kembalikan stok (jika perlu)
+                    for (const adj of stockAdjustments) {
+                        const product = products.find(p => p.id == adj.productId);
+                        if (product) {
+                            const newStock = (product.stock || 0) + adj.adjustment;
+                            
+                            const { error: stockError } = await supabaseClient
+                                .from('products')
+                                .update({ stock: newStock })
+                                .eq('id', adj.productId);
+
+                            if (stockError) throw stockError;
+
+                            // Update stok lokal
+                            product.stock = newStock;
+                        }
+                    }
+
+                    // 3. Update data lokal & UI
+                    orders = orders.filter(o => o.id != orderId); // Hapus dari array lokal
+
+                    showNotification(`Pesanan ${orderDisplayName} berhasil dihapus!`, 'success');
+                    renderAdminOrders(); // Muat ulang tabel admin
+                    renderProducts(); // Muat ulang produk (karena stok berubah)
+
+                } catch (error) {
+                    console.error('Error deleting order:', error);
+                    showNotification('Gagal menghapus pesanan: ' + error.message, 'error');
+                }
+            });
+        }
+
     </script>
 </body>
 </html>
