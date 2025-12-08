@@ -70,8 +70,9 @@
                                 <i class="fas fa-shopping-cart text-xl"></i>
                                 <span id="cartBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
                             </button>
-                            <button onclick="showSection('orders')" id="ordersNav" class="nav-btn p-2 text-gray-600 hover:text-purple-600 rounded-full w-10 h-10 flex items-center justify-center transition-colors" title="Riwayat Pesanan">
+                            <button onclick="showSection('orders')" id="ordersNav" class="nav-btn relative p-2 text-gray-600 hover:text-purple-600 rounded-full w-10 h-10 flex items-center justify-center transition-colors" title="Riwayat Pesanan">
                                 <i class="fas fa-receipt text-xl"></i>
+                                <span id="ordersBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
                             </button>
                             <div class="flex items-center space-x-1">
                                 <!-- Tombol Ikon Profil Baru -->
@@ -879,9 +880,9 @@
             </button>
     
             <!-- 4. Riwayat Pesanan -->
-            <button onclick="showSection('orders')" id="footerOrdersNav" 
-                    class="footer-nav-btn flex flex-col items-center justify-center w-1/5 text-gray-600 hover:text-purple-600 transition-colors">
+            <button onclick="showSection('orders')" id="footerOrdersNav" class="footer-nav-btn relative flex flex-col items-center justify-center w-1/5 text-gray-600 hover:text-purple-600 transition-colors">
                 <i class="fas fa-receipt text-xl mb-1"></i>
+                <span id="footerOrdersBadge" class="absolute top-0 right-2 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center hidden">0</span>
             </button>
     
             <!-- 5. Profil -->
@@ -1957,6 +1958,7 @@
             }
             
             updateCartBadge();
+            updateUnpaidOrderBadge();
         }
 
         // Logout
@@ -2144,6 +2146,7 @@
             
             console.log('Filtered customer orders:', customerOrders);
             renderCustomerOrders(customerOrders);
+            updateUnpaidOrderBadge();
         }
 
         // Render customer orders
@@ -3292,7 +3295,7 @@
 
         // Update cart badge
         function updateCartBadge() {
-        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
             // Fungsi helper untuk memperbarui elemen badge
             const updateBadge = (badgeElement, isHeader = false) => {
@@ -3315,6 +3318,41 @@
             // Panggil fungsi untuk kedua badge
             updateBadge(document.getElementById('cartBadge'), true); // true = isHeader
             updateBadge(document.getElementById('footerCartBadge'), false); // false = not header
+        }
+
+        // Update Unpaid Orders Badge
+        function updateUnpaidOrderBadge() {
+            if (!currentUser) return;
+
+            // Hitung pesanan milik user saat ini yang statusnya BUKAN 'cancelled' DAN payment_status BUKAN 'paid'
+            const unpaidCount = orders.filter(order => 
+                (order.user_id === currentUser.id || order.customer_email === currentUser.email) && 
+                order.status !== 'cancelled' && 
+                order.payment_status !== 'paid'
+            ).length;
+
+            // Update Badge di Header
+            const headerBadge = document.getElementById('ordersBadge');
+            if (headerBadge) {
+                if (unpaidCount > 0) {
+                    headerBadge.textContent = unpaidCount;
+                    headerBadge.classList.remove('hidden');
+                    headerBadge.classList.add('cart-badge'); // Menggunakan animasi yang sama dengan cart
+                } else {
+                    headerBadge.classList.add('hidden');
+                }
+            }
+
+            // Update Badge di Footer
+            const footerBadge = document.getElementById('footerOrdersBadge');
+            if (footerBadge) {
+                if (unpaidCount > 0) {
+                    footerBadge.textContent = unpaidCount;
+                    footerBadge.classList.remove('hidden');
+                } else {
+                    footerBadge.classList.add('hidden');
+                }
+            }
         }
 
         // Update favorite badge
@@ -4054,7 +4092,9 @@ async function checkout() {
                 updateCartBadge();
                 
                 showNotification('Pesanan berhasil dibuat! Cek halaman "Pesanan Saya"', 'success');
-                showSection('shopping');
+                showSection('orders'); // Redirect ke halaman Orders
+                loadCustomerOrders(); // Muat ulang data pesanan agar pesanan baru muncul
+                updateUnpaidOrderBadge();
                 renderProducts(); // Refresh products to show updated stock
                 
             } catch (error) {
