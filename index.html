@@ -1075,6 +1075,28 @@
                         </div>
                     </div>
 
+                    <!-- Tambah Produk Baru (Admin Only) -->
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-100 mb-4">
+                        <h4 class="text-sm font-semibold text-blue-800 mb-3">Tambah Produk ke Pesanan</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div>
+                                <select id="editOrderAddType" onchange="updateEditOrderProductDropdown()" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Pilih Tipe...</option>
+                                </select>
+                            </div>
+                            <div>
+                                <select id="editOrderAddProduct" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" disabled>
+                                    <option value="">Pilih Produk...</option>
+                                </select>
+                            </div>
+                            <div>
+                                <button type="button" onclick="addItemToEditOrder()" class="w-full bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                                    <i class="fas fa-plus mr-1"></i>Tambah Item
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Item yang Dapat Diedit -->
                     <div>
                         <label class="block text-lg font-semibold text-gray-700 mb-2">Item Pesanan</label>
@@ -3170,7 +3192,7 @@
             
             // Render products
             grid.innerHTML = filteredProducts.map(product => `
-                <div class="vendor-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col cursor-pointer" onclick="showProductDetail(${product.id})">
+                <div class="vendor-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
                     <div class="aspect-w-16 aspect-h-12 bg-gray-200">
                         <img src="${product.image_url || 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiZLYhhcn24Ldg-Oi9fPz47a-r_IVHV2tbr1VhFXs424_MkjJfgrSIZyVmddxmyZ5PaUAT4gxPPXe_uH5DziW2rsJnIlTycyAAYrMrAz588ytSsbqyHfDVI3xvlXwpQfCaZqmNcFnecApQIapC2jGVcDQgDp01G_8fPvVV397vxuOU_Ge8aDKHupI4Yo1I/s500/Masakin%20aja.png'}" 
                             alt="${product.name}" 
@@ -3187,13 +3209,19 @@
                             </div>
                             <h3 class="font-semibold text-gray-900 text-sm sm:text-base mb-1 line-clamp-2">${product.name}</h3>
                             <p class="text-gray-500 text-xs mb-2 line-clamp-1">${product.description || ''}</p>
-                            <div class="text-xs text-blue-600 hover:text-blue-800 font-medium mt-1">
+                            <button onclick="showProductDetail(${product.id})" class="text-xs text-blue-600 hover:text-blue-800 font-medium mt-1 text-left">
                                 Selengkapnya &gt;&gt;
-                            </div>
+                            </button>
                         </div>
                         
-                        <div class="mt-auto pt-2">
-                            <span class="text-lg sm:text-xl font-bold text-blue-600 block mb-2">Rp ${formatPrice(product.price || 0)}</span>
+                        <div class="mt-auto pt-2 flex items-center justify-between">
+                            <span class="text-lg sm:text-xl font-bold text-blue-600">Rp ${formatPrice(product.price || 0)}</span>
+                            <button onclick="addToCart(${product.id})" 
+                                    class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors shadow-sm ${(product.stock || 0) === 0 ? 'opacity-50 cursor-not-allowed' : ''}"
+                                    ${(product.stock || 0) === 0 ? 'disabled' : ''}
+                                    title="Tambah ke Keranjang">
+                                <i class="fas fa-cart-plus text-xs"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -6143,6 +6171,25 @@ async function checkout() {
                     }
                     // --- ▲▲▲ AKHIR PERUBAHAN PESAN ▲▲▲ ---
 
+                    // --- ▼▼▼ POPULATE ADD ITEM SECTION ▼▼▼ ---
+                    const addTypeSelect = document.getElementById('editOrderAddType');
+                    const addProductSelect = document.getElementById('editOrderAddProduct');
+
+                    // Reset selects
+                    addTypeSelect.innerHTML = '<option value="">Pilih Tipe...</option>';
+                    addProductSelect.innerHTML = '<option value="">Pilih Produk...</option>';
+                    addProductSelect.disabled = true;
+
+                    // Get unique types from global products array
+                    const types = [...new Set(products.map(p => p.type).filter(Boolean))].sort();
+                    types.forEach(type => {
+                        const option = document.createElement('option');
+                        option.value = type;
+                        option.textContent = type;
+                        addTypeSelect.appendChild(option);
+                    });
+                    // --- ▲▲▲ AKHIR POPULATE ▲▲▲ ---
+
                     // Tampilkan item-item
                     const itemsContainer = document.getElementById('editOrderItemsContainer');
                     itemsContainer.innerHTML = ''; // Kosongkan dulu
@@ -6199,6 +6246,115 @@ async function checkout() {
                     modal.classList.remove('hidden');
                     modal.classList.add('flex');
                 }
+
+        // Update product dropdown in Edit Order modal based on selected type
+        function updateEditOrderProductDropdown() {
+            const typeSelect = document.getElementById('editOrderAddType');
+            const productSelect = document.getElementById('editOrderAddProduct');
+            const selectedType = typeSelect.value;
+
+            productSelect.innerHTML = '<option value="">Pilih Produk...</option>';
+            
+            if (!selectedType) {
+                productSelect.disabled = true;
+                return;
+            }
+
+            // Filter active products of selected type with stock > 0
+            const filteredProducts = products.filter(p => 
+                p.type === selectedType && 
+                (p.status === 'active' || p.status == null) && 
+                (p.stock || 0) > 0
+            );
+
+            if (filteredProducts.length === 0) {
+                productSelect.innerHTML = '<option value="">Tidak ada produk tersedia</option>';
+                productSelect.disabled = true;
+                return;
+            }
+
+            filteredProducts.forEach(p => {
+                const option = document.createElement('option');
+                option.value = p.id;
+                option.textContent = `${p.name} (Stok: ${p.stock})`;
+                productSelect.appendChild(option);
+            });
+
+            productSelect.disabled = false;
+        }
+
+        // Add item to the list in Edit Order modal
+        function addItemToEditOrder() {
+            const productSelect = document.getElementById('editOrderAddProduct');
+            const productId = productSelect.value;
+            
+            if (!productId) {
+                showNotification('Pilih produk terlebih dahulu', 'error');
+                return;
+            }
+
+            const product = products.find(p => p.id == productId);
+            if (!product) return;
+
+            const itemsContainer = document.getElementById('editOrderItemsContainer');
+            
+            // Check if item already exists in the list
+            const existingRow = itemsContainer.querySelector(`.edit-order-item[data-product-id="${productId}"]`);
+            
+            if (existingRow) {
+                // Update existing row
+                const input = existingRow.querySelector('.item-quantity-input');
+                const currentVal = parseInt(input.value) || 0;
+                const maxVal = parseInt(input.max);
+                
+                if (currentVal < maxVal) {
+                    input.value = currentVal + 1;
+                    // Flash effect to show update
+                    existingRow.classList.add('bg-blue-50');
+                    setTimeout(() => existingRow.classList.remove('bg-blue-50'), 500);
+                } else {
+                    showNotification('Stok tidak mencukupi untuk menambah item ini', 'warning');
+                }
+            } else {
+                // Add new row
+                // Note: original-quantity is 0 because it's new to this order
+                // current-stock is product.stock
+                // max is product.stock (since original qty is 0, max = 0 + stock)
+                
+                const itemHTML = `
+                    <div class="flex items-center space-x-3 p-3 bg-white rounded-lg border edit-order-item" 
+                        data-product-id="${product.id}" 
+                        data-original-quantity="0" 
+                        data-price-per-item="${product.price}"
+                        data-current-stock="${product.stock}"> 
+                        
+                        <div class="flex-1">
+                            <p class="font-medium text-gray-900">${product.name} <span class="text-xs text-green-600 font-bold ml-2">(Baru)</span></p>
+                            <p class="text-sm text-gray-500">@ Rp ${formatPrice(product.price)}</p>
+                            <p class="text-xs text-blue-600 mt-1">Sisa stok di toko: ${product.stock}</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <label class="text-sm font-medium">Qty:</label>
+                            <input type="number" 
+                                class="w-20 px-3 py-1 border border-gray-300 rounded-lg text-center item-quantity-input" 
+                                value="1" 
+                                min="0" 
+                                max="${product.stock}"
+                                oninput="calculateNewTotal()">
+                        </div>
+                    </div>
+                `;
+                
+                // If container was showing "empty" message, clear it
+                if (itemsContainer.innerHTML.includes('Pesanan ini tidak memiliki item')) {
+                    itemsContainer.innerHTML = '';
+                }
+                
+                itemsContainer.insertAdjacentHTML('beforeend', itemHTML);
+            }
+            
+            calculateNewTotal();
+        }
 
         // Menghitung total baru di modal edit secara dinamis
         function calculateNewTotal() {
@@ -6268,11 +6424,24 @@ async function checkout() {
                             const newQuantity = parseInt(row.querySelector('.item-quantity-input').value);
 
                             // Cari item asli dari pesanan
-                            const originalItem = originalOrder.items.find(i => i.product_id == productId);
+                            let itemData = (originalOrder.items || []).find(i => i.product_id == productId);
 
-                            if (newQuantity > 0) {
+                            // Jika item baru atau datanya tidak lengkap (misal nama hilang), ambil dari master produk
+                            if (!itemData || !itemData.product_name) {
+                                const productMaster = products.find(p => p.id == productId);
+                                if (productMaster) {
+                                    itemData = {
+                                        ...(itemData || {}),
+                                        product_id: productMaster.id,
+                                        product_name: productMaster.name,
+                                        category: productMaster.category
+                                    };
+                                }
+                            }
+
+                            if (newQuantity > 0 && itemData) {
                                 newItems.push({
-                                    ...originalItem, // Pertahankan semua data (nama, kategori, dll)
+                                    ...itemData, // Pertahankan semua data (nama, kategori, dll)
                                     quantity: newQuantity,
                                     price: pricePerItem
                                 });
@@ -6291,7 +6460,8 @@ async function checkout() {
 
                                     if (stockToTake > currentStock) {
                                         // Ini akan menghentikan proses dan masuk ke blok catch
-                                        throw new Error(`Stok tidak cukup untuk ${originalItem.product_name}. Sisa stok: ${currentStock}.`);
+                                        const productName = itemData ? itemData.product_name : 'Produk';
+                                        throw new Error(`Stok tidak cukup untuk ${productName}. Sisa stok: ${currentStock}.`);
                                     }
                                 }
                                 
