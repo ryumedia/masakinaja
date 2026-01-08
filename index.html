@@ -574,21 +574,10 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Kategori Vendor</label>
-                                <select id="vendorCategorySelect" required onchange="toggleCustomCategory()"
+                                <select id="vendorCategorySelect" required
                                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                     <option value="">Pilih Kategori Vendor</option>
-                                    <option value="pin-kopi">Pin Kopi</option>
-                                    <option value="satset-grill">SatSet Grill</option>
-                                    <option value="ani-ksf">Ani KSF</option>
-                                    <option value="custom">Kategori Baru (Custom)</option>
                                 </select>
-                            </div>
-                            <div id="customCategoryField" class="hidden">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Kategori Custom</label>
-                                <input type="text" id="vendorCategoryCustom" 
-                                       placeholder="Contoh: toko-elektronik, warung-makan"
-                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                <p class="text-xs text-gray-500 mt-1">Gunakan format: huruf kecil dengan tanda hubung</p>
                             </div>
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Nomor Telepon</label>
@@ -637,9 +626,14 @@
             <div class="mb-8">
                 <div class="flex items-center justify-between mb-6 mt-4">
                     <h2 class="text-lg font-bold text-gray-900">Panel Admin</h2>
-                    <button onclick="showSection('kasir')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
-                        <i class="fas fa-cash-register mr-2"></i>Buka Kasir
-                    </button>
+                    <div class="flex space-x-2">
+                        <button onclick="showSection('adminCategories')" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium">
+                            <i class="fas fa-tags mr-2"></i>Atur Kategori
+                        </button>
+                        <button onclick="showSection('kasir')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+                            <i class="fas fa-cash-register mr-2"></i>Buka Kasir
+                        </button>
+                    </div>
                 </div>
                 
                 <!-- Shop Status Control -->
@@ -773,6 +767,59 @@
                 </div>
             </div>
         </section>
+
+        <!-- Admin Categories Section -->
+        <section id="adminCategoriesSection" class="section-content hidden">
+            <div class="max-w-4xl mx-auto">
+                <div class="flex items-center justify-between mb-6 mt-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-900">Pengaturan Kategori</h2>
+                        <p class="text-gray-600 mt-1">Kelola kategori produk (Aktif/Nonaktif)</p>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button onclick="showSection('admin')" class="text-blue-600 hover:text-blue-800 font-medium">
+                            <i class="fas fa-arrow-left mr-2"></i>Kembali
+                        </button>
+                        <button onclick="showCategoryModal()" class="bg-gradient-to-r from-green-500 to-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:from-green-600 hover:to-blue-700 transition-all">
+                            <i class="fas fa-plus mr-2"></i>Tambah Kategori
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="text-left py-4 px-6 font-medium text-gray-700 w-16">No.</th>
+                                    <th class="text-left py-4 px-6 font-medium text-gray-700">Nama Kategori</th>
+                                    <th class="text-left py-4 px-6 font-medium text-gray-700">Status</th>
+                                    <th class="text-left py-4 px-6 font-medium text-gray-700 w-32">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminCategoriesTableBody" class="divide-y divide-gray-200">
+                                <!-- Categories will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-info-circle text-blue-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-blue-800">Informasi Kategori</h3>
+                            <div class="mt-2 text-sm text-blue-700">
+                                <p>Jika status kategori diatur ke <strong>Nonaktif</strong>, semua produk yang terhubung dengan kategori tersebut akan otomatis <strong>disembunyikan</strong> dari halaman belanja pelanggan.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section id="adminSalesSummarySection" class="section-content hidden">
             <div class="max-w-4xl mx-auto">
                 <div class="flex items-center justify-between mb-8 mt-4">
@@ -921,6 +968,46 @@
                         Batal
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Modal (Add/Edit) -->
+    <div id="categoryModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md">
+            <div class="p-6">
+                <div class="text-center mb-6">
+                    <h2 id="categoryModalTitle" class="text-xl font-bold text-gray-900">Tambah Kategori</h2>
+                </div>
+
+                <form id="categoryForm" class="space-y-4">
+                    <input type="hidden" id="categoryId">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nama Kategori</label>
+                        <input type="text" id="categoryName" required 
+                               placeholder="contoh: makanan-berat"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <p class="text-xs text-gray-500 mt-1">gunakan huruf kecil tanpa spasi, pisahkan dengan strip (-)</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                        <select id="categoryStatus" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="active">Active (Tampil)</option>
+                            <option value="nonactive">Nonactive (Sembunyi)</option>
+                        </select>
+                    </div>
+
+                    <div class="flex space-x-3 pt-4">
+                        <button type="submit" 
+                                class="flex-1 bg-gradient-to-r from-green-500 to-blue-600 text-white py-3 rounded-lg font-medium hover:from-green-600 hover:to-blue-700 transition-all">
+                            <i class="fas fa-save mr-2"></i>Simpan
+                        </button>
+                        <button type="button" onclick="hideCategoryModal()" 
+                                class="flex-1 bg-gray-600 text-white py-3 rounded-lg font-medium hover:bg-gray-700 transition-all">
+                            <i class="fas fa-times mr-2"></i>Batal
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -1139,6 +1226,7 @@
         // Global variables
         let currentUser = null;
         let products = [];
+        let categories = [];
         let orders = [];
         let cart = JSON.parse(localStorage.getItem('masakinAjaCart')) || [];
         let currentTypeFilter = '';
@@ -1181,6 +1269,7 @@
             document.getElementById('vendorForm').addEventListener('submit', handleAddVendor);
             document.getElementById('productForm').addEventListener('submit', handleAddProduct);
             document.getElementById('editProfileForm').addEventListener('submit', handleEditProfile);
+            document.getElementById('categoryForm').addEventListener('submit', handleSaveCategory);
         }
 
         // --- SCROLL TO TOP LOGIC ---
@@ -1276,6 +1365,7 @@
                 
                 // Load products first as other functions might depend on it
                 await loadProducts();
+                await loadCategories(); // Load categories
         
                 // Load other data
                 await loadOrders();
@@ -1312,6 +1402,25 @@
             } catch (error) {
                 console.error('Error loading products:', error);
                 products = [];
+            }
+        }
+
+
+        // Load categories from database
+        async function loadCategories() {
+            if (!supabaseClient) return;
+            
+            try {
+                const { data, error } = await supabaseClient
+                    .from('categories')
+                    .select('*')
+                    .order('name', { ascending: true });
+                
+                if (error) throw error;
+                categories = data || [];
+                console.log('Categories loaded:', categories.length);
+            } catch (error) {
+                console.error('Error loading categories:', error);
             }
         }
 
@@ -2129,6 +2238,8 @@
             } else if (section === 'adminSalesSummary') {
                 loadAdminVendorFilters('summaryVendorFilter');
                 loadAdminSalesSummary();
+            } else if (section === 'adminCategories') {
+                loadAdminCategories();
             } else if (section === 'productDetail') {
                 document.getElementById('productDetailSection').classList.remove('hidden');   
             } else if (section === 'favorites') {
@@ -3161,12 +3272,26 @@
             // Kondisi 2: Tipe produk harus cocok dengan filter dropdown (jika ada yang dipilih)
             const typeMatch = !currentTypeFilter || (product.type || '').toLowerCase() === currentTypeFilter.toLowerCase();
     
-            // ▼▼▼ TAMBAHKAN KONDISI 3 INI ▼▼▼
+            // Kondisi 3: Pencarian
             const searchMatch = !searchTerm || (product.name || '').toLowerCase().includes(searchTerm);
 
-            // ▼▼▼ UBAH BARIS 'return' DI BAWAH INI ▼▼▼
-            // Produk akan ditampilkan hanya jika KETIGA kondisi terpenuhi
-            return isActive && typeMatch && searchMatch;
+            // ▼▼▼ KONDISI 4: Cek Status Kategori (Vendor & Tipe) ▼▼▼
+            // Normalisasi string untuk perbandingan (lowercase)
+            const pCategory = (product.category || '').toLowerCase();
+            const pType = (product.type || '').toLowerCase();
+
+            // Cek Vendor Category (misal: pin-kopi)
+            const vendorCatObj = categories.find(c => c.name.toLowerCase() === pCategory);
+            const isVendorCatActive = vendorCatObj ? vendorCatObj.status === 'active' : true;
+
+            // Cek Product Type (misal: Frozen Food) - User mungkin menganggap ini Kategori
+            const typeObj = categories.find(c => c.name.toLowerCase() === pType);
+            const isTypeActive = typeObj ? typeObj.status === 'active' : true;
+
+            // Produk tampil jika KEDUA-DUANYA aktif (default true jika tidak diatur)
+            const isCategoryAllowed = isVendorCatActive && isTypeActive;
+
+            return isActive && typeMatch && searchMatch && isCategoryAllowed;
         });
 
             // Check if no products available
@@ -4011,7 +4136,7 @@
                             <h5 class="font-semibold text-purple-900 mb-3">Pembayaran QRIS</h5>
                             <div class="text-center">
                                 <div class="w-48 h-48 bg-white border-2 border-gray-300 rounded-lg mx-auto mb-3 overflow-hidden">
-                                    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEieYuune-QmCTpWKovYD4fyLBwC2XkJELpCwxuDC0a4rerFUYIom_bXjqaw6bJWcZun3wtIqp3MHlCpcfY-v5BkTroN53HXO-54hnh6NZnY7x68DJgZT0QrBMs-c_mRo0g05R4LqlPEqqUkjw_dB5Ekc6iAxMvOpREdh7n8x-OBaEL363FW18l2StHFhFk" 
+                                    <img src="https://blogger.googleusercontent.com/img/a/AVvXsEitlfUMkS5lwl7ZkdRrDaQrsUG-snh95nbBekMugyaEJkHuhV1t4ygiJF2lKR-xmQu5L1MbwQGX1fjEeSy8Bm9hBdb0Et3Di2YySO6lwHtHNU935EZDDUFThuncr5mrM7N9NoWHxcoJLDYPHXjyd5al8Menn_h_OptlRXoq6SDnu2GYwSvxc0Wl5wUIs4A" 
                                          alt="QRIS Masakin Aja" 
                                          class="w-full h-full object-cover"
                                          onerror="this.parentElement.innerHTML='<i class=\\'fas fa-qrcode text-gray-400 text-4xl\\'></i>'">
@@ -4598,17 +4723,17 @@ async function checkout() {
             if (!supabaseClient) return;
             
             try {
-                // Get unique vendor categories from existing vendors
-                const { data: vendors, error } = await supabaseClient
-                    .from('users')
-                    .select('vendor_category')
-                    .eq('role', 'vendor')
-                    .not('vendor_category', 'is', null);
+                // Get categories from categories table
+                const { data: cats, error } = await supabaseClient
+                    .from('categories')
+                    .select('name')
+                    .eq('status', 'active')
+                    .order('name', { ascending: true });
                 
                 if (error) throw error;
                 
                 // Get unique categories
-                const existingCategories = [...new Set(vendors.map(v => v.vendor_category).filter(Boolean))];
+                const existingCategories = (cats || []).map(c => c.name);
                 
                 console.log('Existing vendor categories:', existingCategories);
                 
@@ -4633,9 +4758,6 @@ async function checkout() {
             existingCategories.forEach(category => {
                 optionsHTML += `<option value="${category}">${getVendorName(category)}</option>`;
             });
-            
-            // Always add custom option
-            optionsHTML += '<option value="custom">Kategori Baru (Custom)</option>';
             
             select.innerHTML = optionsHTML;
         }
@@ -4727,28 +4849,12 @@ async function checkout() {
             }
         }
 
-        // Toggle custom category field
-        function toggleCustomCategory() {
-            const categorySelect = document.getElementById('vendorCategorySelect');
-            const customField = document.getElementById('customCategoryField');
-            
-            if (categorySelect.value === 'custom') {
-                customField.classList.remove('hidden');
-                document.getElementById('vendorCategoryCustom').required = true;
-            } else {
-                customField.classList.add('hidden');
-                document.getElementById('vendorCategoryCustom').required = false;
-                document.getElementById('vendorCategoryCustom').value = '';
-            }
-        }
-
         // Reset vendor form to initial state
         function resetVendorForm() {
             document.getElementById('emailCheckStep').classList.remove('hidden');
             document.getElementById('vendorDetailsStep').classList.add('hidden');
             document.getElementById('vendorEmailCheck').value = '';
             document.getElementById('vendorForm').reset();
-            document.getElementById('customCategoryField').classList.add('hidden');
             window.selectedUserForVendor = null;
         }
 
@@ -4767,31 +4873,14 @@ async function checkout() {
             }
             
             const categorySelect = document.getElementById('vendorCategorySelect').value;
-            const customCategory = document.getElementById('vendorCategoryCustom').value.trim().toLowerCase();
             const phone = document.getElementById('vendorPhone').value.trim();
             
             // Determine final category
-            let finalCategory = '';
-            if (categorySelect === 'custom') {
-                if (!customCategory) {
-                    showNotification('Masukkan kategori custom', 'error');
-                    return;
-                }
-                
-                // Validasi format kategori custom
-                const categoryRegex = /^[a-z0-9]+(-[a-z0-9]+)*$/;
-                if (!categoryRegex.test(customCategory)) {
-                    showNotification('Kategori harus menggunakan huruf kecil dan tanda hubung (contoh: toko-elektronik)', 'error');
-                    return;
-                }
-                finalCategory = customCategory;
-            } else {
-                if (!categorySelect) {
-                    showNotification('Pilih kategori vendor', 'error');
-                    return;
-                }
-                finalCategory = categorySelect;
+            if (!categorySelect) {
+                showNotification('Pilih kategori vendor', 'error');
+                return;
             }
+            const finalCategory = categorySelect;
             
             try {
                 console.log('Converting user to vendor:', {
@@ -5996,7 +6085,7 @@ async function checkout() {
                 <div>
                     <h5 class="font-semibold text-gray-800 mb-3 text-center">QRIS</h5>
                     <div class="w-48 h-48 bg-white border-2 border-gray-300 rounded-lg mx-auto overflow-hidden">
-                        <img src="https://blogger.googleusercontent.com/img/a/AVvXsEieYuune-QmCTpWKovYD4fyLBwC2XkJELpCwxuDC0a4rerFUYIom_bXjqaw6bJWcZun3wtIqp3MHlCpcfY-v5BkTroN53HXO-54hnh6NZnY7x68DJgZT0QrBMs-c_mRo0g05R4LqlPEqqUkjw_dB5Ekc6iAxMvOpREdh7n8x-OBaEL363FW18l2StHFhFk" 
+                        <img src="https://blogger.googleusercontent.com/img/a/AVvXsEitlfUMkS5lwl7ZkdRrDaQrsUG-snh95nbBekMugyaEJkHuhV1t4ygiJF2lKR-xmQu5L1MbwQGX1fjEeSy8Bm9hBdb0Et3Di2YySO6lwHtHNU935EZDDUFThuncr5mrM7N9NoWHxcoJLDYPHXjyd5al8Menn_h_OptlRXoq6SDnu2GYwSvxc0Wl5wUIs4A" 
                              alt="QRIS Warung Masakin" class="w-full h-full object-cover">
                     </div>
                 </div>
@@ -6591,7 +6680,167 @@ async function checkout() {
             });
         }
 
+        // Load Admin Categories Table
+        function loadAdminCategories() {
+            const tableBody = document.getElementById('adminCategoriesTableBody');
+            if (!tableBody) return;
+
+            if (!categories || categories.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500">Belum ada kategori.</td></tr>';
+                return;
+            }
+
+            let html = '';
+            categories.forEach((cat, index) => {
+                const statusClass = cat.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+                const statusText = cat.status === 'active' ? 'Active' : 'Nonactive';
+                
+                html += `
+                    <tr class="hover:bg-gray-50">
+                        <td class="py-4 px-6 text-sm text-gray-500">${index + 1}</td>
+                        <td class="py-4 px-6 font-medium text-gray-900">${cat.name}</td>
+                        <td class="py-4 px-6">
+                            <span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass}">
+                                ${statusText}
+                            </span>
+                        </td>
+                        <td class="py-4 px-6">
+                            <div class="flex space-x-2">
+                                <button onclick="editCategory('${cat.id}')" class="text-blue-600 hover:text-blue-800 transition-colors" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="deleteCategory('${cat.id}', '${cat.name}')" class="text-red-600 hover:text-red-800 transition-colors" title="Hapus">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            tableBody.innerHTML = html;
+        }
+
+        // Show Category Modal (Add/Edit)
+        function showCategoryModal(categoryId = null) {
+            const modal = document.getElementById('categoryModal');
+            const title = document.getElementById('categoryModalTitle');
+            const form = document.getElementById('categoryForm');
+            
+            if (categoryId) {
+                const cat = categories.find(c => c.id == categoryId);
+                if (cat) {
+                    document.getElementById('categoryId').value = cat.id;
+                    document.getElementById('categoryName').value = cat.name;
+                    document.getElementById('categoryStatus').value = cat.status || 'active';
+                    title.textContent = 'Edit Kategori';
+                }
+            } else {
+                form.reset();
+                document.getElementById('categoryId').value = '';
+                document.getElementById('categoryStatus').value = 'active';
+                title.textContent = 'Tambah Kategori';
+            }
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        // Hide Category Modal
+        function hideCategoryModal() {
+            const modal = document.getElementById('categoryModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Handle Save Category
+        async function handleSaveCategory(e) {
+            e.preventDefault();
+            
+            if (!supabaseClient) {
+                showNotification('Koneksi database tidak tersedia', 'error');
+                return;
+            }
+
+            const id = document.getElementById('categoryId').value;
+            const name = document.getElementById('categoryName').value.trim();
+            const status = document.getElementById('categoryStatus').value;
+
+            if (!name) {
+                showNotification('Nama kategori harus diisi', 'error');
+                return;
+            }
+
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Menyimpan...';
+
+            try {
+                let error;
+                if (id) {
+                    // Update
+                    const { error: updateError } = await supabaseClient
+                        .from('categories')
+                        .update({ name, status })
+                        .eq('id', id);
+                    error = updateError;
+                } else {
+                    // Insert
+                    const { error: insertError } = await supabaseClient
+                        .from('categories')
+                        .insert([{ name, status }]);
+                    error = insertError;
+                }
+
+                if (error) throw error;
+
+                showNotification(id ? 'Kategori diperbarui' : 'Kategori ditambahkan', 'success');
+                hideCategoryModal();
+                
+                // Reload data
+                await loadCategories();
+                loadAdminCategories();
+                renderProducts(); // Refresh products visibility based on new category status
+
+            } catch (err) {
+                console.error('Error saving category:', err);
+                showNotification('Gagal menyimpan kategori: ' + err.message, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
+        }
+
+        // Edit Category Helper
+        function editCategory(id) {
+            showCategoryModal(id);
+        }
+
+        // Delete Category
+        async function deleteCategory(id, name) {
+            showConfirmationModal(`Apakah Anda yakin ingin menghapus kategori "${name}"?`, async () => {
+                if (!supabaseClient) return;
+
+                try {
+                    const { error } = await supabaseClient
+                        .from('categories')
+                        .delete()
+                        .eq('id', id);
+
+                    if (error) throw error;
+
+                    showNotification('Kategori dihapus', 'success');
+                    await loadCategories();
+                    loadAdminCategories();
+                    renderProducts();
+
+                } catch (err) {
+                    console.error('Error deleting category:', err);
+                    showNotification('Gagal menghapus kategori: ' + err.message, 'error');
+                }
+            });
+        }
+
     </script>
 </body>
 </html>
-
